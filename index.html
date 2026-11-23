@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Absensi Guru & Tenaga Pendidik Digital - SD Islam Hidayatullah</title>
+    <title>Daftar Hadir Tenaga Pendidik dan Kependidikan - SD Islam Hidayatullah</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -60,7 +60,7 @@
                     📋
                 </div>
                 <div>
-                    <h1 class="text-base sm:text-lg font-extrabold tracking-tight leading-tight">ABSENSI DIGITAL GURU & TENDIK</h1>
+                    <h1 class="text-base sm:text-lg font-extrabold tracking-tight leading-tight">DAFTAR HADIR TENAGA PENDIDIK DAN KEPENDIDIKAN</h1>
                     <p id="nav-school-name" class="text-[11px] sm:text-xs text-blue-200 font-medium">SD ISLAM HIDAYATULLAH MARTAPURA</p>
                 </div>
             </div>
@@ -89,7 +89,7 @@
     <div id="login-overlay" class="no-print fixed inset-0 z-[60] bg-gradient-to-br from-blue-950 via-blue-900 to-blue-700 flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl fade-in">
             <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center text-2xl mx-auto mb-3">📋</div>
-            <h3 class="text-lg font-extrabold text-blue-950 text-center leading-tight">ABSENSI GURU & TENDIK</h3>
+            <h3 class="text-lg font-extrabold text-blue-950 text-center leading-tight">DAFTAR HADIR TENAGA PENDIDIK DAN KEPENDIDIKAN</h3>
             <p class="text-xs text-slate-500 text-center mt-0.5 mb-4">SD Islam Hidayatullah Martapura</p>
 
             <div class="grid grid-cols-2 gap-1.5 p-1 bg-blue-50 rounded-2xl mb-4">
@@ -223,7 +223,7 @@
                     <h2 id="cover-school-title" class="text-lg sm:text-2xl font-extrabold text-blue-950 tracking-tight leading-snug mt-0.5">SD ISLAM HIDAYATULLAH</h2>
                     <p id="cover-school-addr" class="text-[11px] sm:text-xs text-slate-600 font-medium mt-0.5">Jl. P. Hidayatullah Keraton Martapura • Kab. Banjar, Kalimantan Selatan</p>
                     <div id="cover-identity-badge" class="inline-block mt-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[11px] font-extrabold text-blue-900">
-                        DAFTAR HADIR GURU & TENAGA PENDIDIK
+                        DAFTAR HADIR TENAGA PENDIDIK DAN KEPENDIDIKAN
                     </div>
                 </div>
 
@@ -345,7 +345,7 @@
                     </div>
 
                     <div class="pt-2 flex flex-wrap items-center justify-between gap-3">
-                        <p class="text-[11px] text-slate-500">💡 Tips: Ketik 4 angka seperti <b>0715</b> atau <b>1430</b>, otomatis menjadi <b>07:15</b> / <b>14:30</b>.</p>
+                        <p class="text-[11px] text-slate-500">⏰ Absen hanya bisa diisi <b>pada hari ini</b>, mulai pukul <b>07:00 WITA</b>. Setelah tersimpan, jam datang/pulang hanya bisa diubah <b>admin</b>.<br>💡 Tips: Ketik 4 angka seperti <b>0715</b> atau <b>1430</b>, otomatis menjadi <b>07:15</b> / <b>14:30</b>.</p>
                         <button type="submit" class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-800 to-blue-600 hover:from-blue-900 hover:to-blue-700 text-white font-extrabold text-sm shadow-md transition">
                             ✅ Simpan Kehadiran
                         </button>
@@ -461,6 +461,15 @@
         <!-- TAB ADMIN 1: LAPORAN REKAP & LEMBAR PER GURU -->
         <div id="admin-panel-rekap" class="space-y-6">
 
+            <!-- EDITOR KEHADIRAN (KHUSUS ADMIN) -->
+            <section class="no-print bg-white rounded-3xl shadow-md border border-blue-200/80 p-4 sm:p-5 space-y-3">
+                <div>
+                    <h3 class="text-sm sm:text-base font-extrabold text-blue-950">✏️ Edit Jam Kedatangan & Kepulangan (Admin)</h3>
+                    <p class="text-[11px] text-slate-500">Hanya admin yang dapat mengubah jam kedatangan/kepulangan dan mengisi absen tanggal yang sudah lewat.</p>
+                </div>
+                <div id="admin-editor-box"></div>
+            </section>
+
             <!-- LEMBAR 1: REKAPITULASI SEMUA GURU BULAN AKTIF -->
             <section class="print-sheet bg-white rounded-3xl shadow-md border border-blue-200/80 p-5 sm:p-8">
                 <!-- Kop Surat Laporan Admin -->
@@ -488,7 +497,7 @@
                         <h3 class="admin-school-title text-lg sm:text-2xl font-extrabold text-blue-950 tracking-tight mt-0.5">SD ISLAM HIDAYATULLAH</h3>
                         <p class="admin-school-addr text-[11px] sm:text-xs text-slate-600 font-medium mt-0.5">Jl. P. Hidayatullah Keraton Martapura • Kab. Banjar, Kalimantan Selatan</p>
                         <div class="inline-block mt-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200">
-                            <p id="admin-monthly-subtitle" class="text-[11px] sm:text-xs font-extrabold text-blue-950 tracking-wide">REKAPITULASI DAFTAR HADIR BULANAN</p>
+                            <p id="admin-monthly-subtitle" class="text-[11px] sm:text-xs font-extrabold text-blue-950 tracking-wide text-center">DAFTAR HADIR TENAGA PENDIDIK DAN KEPENDIDIKAN<br><span class="text-blue-800">REKAPITULASI BULANAN</span></p>
                         </div>
                     </div>
 
@@ -744,6 +753,65 @@
             }
         }
 
+        // ===== Aturan waktu absen (WITA) =====
+        const ABSEN_OPEN_MINUTES = 7 * 60; // absen dibuka pukul 07:00
+
+        function getIndoNow() {
+            try {
+                const parts = new Intl.DateTimeFormat("en-CA", {
+                    timeZone: "Asia/Makassar",
+                    year: "numeric", month: "2-digit", day: "2-digit",
+                    hour: "2-digit", minute: "2-digit", hourCycle: "h23"
+                }).formatToParts(new Date());
+                const g = t => parseInt(parts.find(p => p.type === t).value, 10);
+                const h = g("hour") % 24;
+                return { year: g("year"), month: g("month") - 1, day: g("day"), minutes: h * 60 + g("minute") };
+            } catch (e) {
+                const n = new Date();
+                return { year: n.getFullYear(), month: n.getMonth(), day: n.getDate(), minutes: n.getHours() * 60 + n.getMinutes() };
+            }
+        }
+
+        // Mengembalikan pesan penolakan, atau "" jika absen diperbolehkan.
+        // Guru: hanya boleh absen pada hari ini, mulai pukul 07:00 WITA.
+        // Jam datang/pulang yang sudah tersimpan hanya bisa diubah admin.
+        function checkAttendanceAllowed(dateKey, field) {
+            if (isAdminUnlocked) return "";
+            const n = getIndoNow();
+            const todayKey = makeDateKey(n.year, n.month, n.day);
+            if (dateKey > todayKey) {
+                return "⛔ Belum bisa absen untuk tanggal yang belum tiba. Absen hanya bisa diisi pada hari yang bersangkutan.";
+            }
+            if (dateKey < todayKey) {
+                return "⛔ Tanggal sudah lewat. Absen tidak bisa diisi atau diubah lagi; hubungi admin jika ada koreksi.";
+            }
+            if (n.minutes < ABSEN_OPEN_MINUTES) {
+                return "⛔ Absen baru dibuka pukul 07:00 WITA. Silakan coba lagi nanti.";
+            }
+            if (field === "timeIn" || field === "timeOut") {
+                return "🔒 Jam kedatangan dan kepulangan hanya bisa diubah oleh admin.";
+            }
+            return "";
+        }
+
+        // Pilihan tanggal pada form: guru hanya bisa memilih hari ini, admin bebas.
+        function refreshQuickDayOptions() {
+            const n = getIndoNow();
+            const monthEl = document.getElementById("quick-month");
+            const yearEl = document.getElementById("quick-year");
+            // Guru: bulan & tahun dikunci ke hari ini. Admin: bebas.
+            if (!isAdminUnlocked) {
+                if (monthEl) monthEl.value = n.month;
+                if (yearEl) yearEl.value = n.year;
+            }
+            if (monthEl) monthEl.disabled = !isAdminUnlocked;
+            if (yearEl) yearEl.disabled = !isAdminUnlocked;
+            const year = parseInt(yearEl?.value, 10) || n.year;
+            const month = parseInt(monthEl?.value, 10) || 0;
+            const day = isAdminUnlocked ? (parseInt(document.getElementById("quick-day")?.value, 10) || 1) : n.day;
+            populateQuickDaySelect(year, month, day);
+        }
+
         function startLiveIndoClock() {
             const el = document.getElementById("live-indo-clock");
             const updateClock = () => {
@@ -793,10 +861,14 @@
             const daySelect = document.getElementById("quick-day");
             if (!daySelect) return;
             const totalDays = getDaysInMonth(year, monthIndex);
-            const activeDay = Math.min(preferredDay || 1, totalDays);
+            const nowI = getIndoNow();
+            const todayKey = makeDateKey(nowI.year, nowI.month, nowI.day);
+            const isBlocked = d => !isAdminUnlocked && makeDateKey(year, monthIndex, d) !== todayKey;
+            let activeDay = Math.min(preferredDay || 1, totalDays);
+            if (isBlocked(activeDay) && nowI.year === year && nowI.month === monthIndex) activeDay = nowI.day;
             let html = "";
             for (let d = 1; d <= totalDays; d++) {
-                html += `<option value="${d}" ${d === activeDay ? "selected" : ""}>${d}</option>`;
+                html += `<option value="${d}" ${d === activeDay ? "selected" : ""} ${isBlocked(d) ? "disabled" : ""}>${d}</option>`;
             }
             daySelect.innerHTML = html;
             updateQuickAutoDay();
@@ -948,7 +1020,7 @@
             } else if (nameVal) {
                 badge.textContent = `DAFTAR HADIR: ${nameVal.toUpperCase()}`;
             } else {
-                badge.textContent = "DAFTAR HADIR GURU & TENAGA PENDIDIK";
+                badge.textContent = "DAFTAR HADIR TENAGA PENDIDIK DAN KEPENDIDIKAN";
             }
         }
 
@@ -1007,12 +1079,25 @@
             const status = document.getElementById("quick-status").value;
             const note = document.getElementById("quick-note").value.trim();
 
+            const blockMsg = checkAttendanceAllowed(makeDateKey(year, month, day));
+            if (blockMsg) {
+                showToast(blockMsg);
+                return;
+            }
+
             state.coverIdentity = { name, role };
             updateCoverIdentityBadge();
 
             const teacher = findOrCreateTeacher(name, role);
             const dateKey = makeDateKey(year, month, day);
-            setRecord(teacher.id, dateKey, { timeIn, timeOut, status, note });
+            let finalIn = timeIn, finalOut = timeOut;
+            if (!isAdminUnlocked) {
+                // Jam yang sudah tercatat tidak bisa ditimpa guru; hanya admin.
+                const prev = (state.records[teacher.id] && state.records[teacher.id][dateKey]) || {};
+                if (prev.timeIn) finalIn = prev.timeIn;
+                if (prev.timeOut) finalOut = prev.timeOut;
+            }
+            setRecord(teacher.id, dateKey, { timeIn: finalIn, timeOut: finalOut, status, note });
 
             state.quickLogs = state.quickLogs.filter(
                 log => !(log.teacherId === teacher.id && log.dateKey === dateKey)
@@ -1062,16 +1147,16 @@
                             <div class="flex items-center gap-1 bg-white px-2.5 py-1 rounded-xl border border-blue-200">
                                 <span class="text-[11px] font-bold text-slate-500">Datang:</span>
                                 <input type="text" inputmode="numeric" maxlength="5" value="${escapeHtml(rec.timeIn || "")}" placeholder="07:00"
-                                    onchange="updateDirectRecordTime('${log.teacherId}', '${log.dateKey}', 'timeIn', this)"
+                                    onchange="updateDirectRecordTime('${log.teacherId}', '${log.dateKey}', 'timeIn', this)" ${isAdminUnlocked ? "" : "readonly title=\"Hanya admin yang bisa mengubah jam\""}
                                     class="w-14 text-xs font-extrabold text-blue-950 text-center focus:outline-none">
                             </div>
                             <div class="flex items-center gap-1 bg-white px-2.5 py-1 rounded-xl border border-blue-200">
                                 <span class="text-[11px] font-bold text-slate-500">Pulang:</span>
                                 <input type="text" inputmode="numeric" maxlength="5" value="${escapeHtml(rec.timeOut || "")}" placeholder="14:00"
-                                    onchange="updateDirectRecordTime('${log.teacherId}', '${log.dateKey}', 'timeOut', this)"
+                                    onchange="updateDirectRecordTime('${log.teacherId}', '${log.dateKey}', 'timeOut', this)" ${isAdminUnlocked ? "" : "readonly title=\"Hanya admin yang bisa mengubah jam\""}
                                     class="w-14 text-xs font-extrabold text-blue-950 text-center focus:outline-none">
                             </div>
-                            <button type="button" onclick="loadLogToQuickForm('${log.teacherId}', '${log.dateKey}', ${log.day}, ${log.month}, ${log.year})" class="px-2.5 py-1.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-[11px] font-bold">
+                            <button type="button" ${(isAdminUnlocked || log.dateKey === makeDateKey(getIndoNow().year, getIndoNow().month, getIndoNow().day)) ? "" : "disabled title=\"Tanggal sudah lewat\""} onclick="loadLogToQuickForm('${log.teacherId}', '${log.dateKey}', ${log.day}, ${log.month}, ${log.year})" class="px-2.5 py-1.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-[11px] font-bold disabled:opacity-40 disabled:cursor-not-allowed">
                                 ✏️ Edit
                             </button>
                             <button type="button" onclick="confirmDeleteQuickLog('${log.id}', '${log.teacherId}', '${log.dateKey}')" class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[11px] font-bold transition">
@@ -1097,6 +1182,12 @@
         };
 
         window.updateDirectRecordTime = function (teacherId, dateKey, field, inputEl) {
+            const blockMsg = checkAttendanceAllowed(dateKey, field);
+            if (blockMsg) {
+                showToast(blockMsg);
+                renderQuickRecentList();
+                return;
+            }
             const formatted = formatIndoTimeInput(inputEl);
             setRecord(teacherId, dateKey, { [field]: formatted });
             saveState();
@@ -1108,6 +1199,8 @@
         };
 
         window.loadLogToQuickForm = function (teacherId, dateKey, day, month, year) {
+            const blockMsg = checkAttendanceAllowed(dateKey);
+            if (blockMsg) { showToast(blockMsg); return; }
             const teacher = state.teachers.find(t => t.id === teacherId);
             if (!teacher) return;
             const rec = (state.records[teacherId] && state.records[teacherId][dateKey]) || {};
@@ -1195,12 +1288,12 @@
                         <td class="py-2 px-3 font-semibold text-slate-800">${d} ${MONTHS_ID[month]} ${year}</td>
                         <td class="py-2 px-3 text-center">
                             <input type="text" inputmode="numeric" maxlength="5" value="${escapeHtml(rec.timeIn || "")}" placeholder="--:--"
-                                onchange="updateSheetCell('${teacher.id}', '${dateKey}', 'timeIn', this)"
+                                onchange="updateSheetCell('${teacher.id}', '${dateKey}', 'timeIn', this)" ${isAdminUnlocked ? "" : "readonly title=\"Hanya admin yang bisa mengubah jam\""}
                                 class="w-16 px-1.5 py-1 rounded-lg border border-slate-200 text-center text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-600">
                         </td>
                         <td class="py-2 px-3 text-center">
                             <input type="text" inputmode="numeric" maxlength="5" value="${escapeHtml(rec.timeOut || "")}" placeholder="--:--"
-                                onchange="updateSheetCell('${teacher.id}', '${dateKey}', 'timeOut', this)"
+                                onchange="updateSheetCell('${teacher.id}', '${dateKey}', 'timeOut', this)" ${isAdminUnlocked ? "" : "readonly title=\"Hanya admin yang bisa mengubah jam\""}
                                 class="w-16 px-1.5 py-1 rounded-lg border border-slate-200 text-center text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-600">
                         </td>
                         <td class="py-2 px-3">
@@ -1225,6 +1318,13 @@
         }
 
         window.updateSheetCell = function (teacherId, dateKey, field, el) {
+            const blockMsg = checkAttendanceAllowed(dateKey, field);
+            if (blockMsg) {
+                showToast(blockMsg);
+                renderTeacherSheet();
+                if (isAdminUnlocked) renderAdminEditor();
+                return;
+            }
             let val = el.value;
             if (field === "timeIn" || field === "timeOut") {
                 val = formatIndoTimeInput(el);
@@ -1321,6 +1421,7 @@
             const val = (document.getElementById("admin-pin-input")?.value || "").trim();
             if (val === ADMIN_PASSWORD) {
                 isAdminUnlocked = true;
+                refreshQuickDayOptions(); renderQuickRecentList(); renderTeacherSheet();
                 closePinModal();
                 switchMainView("admin");
                 showToast("🔓 Akses Laporan Admin dibuka.");
@@ -1399,15 +1500,70 @@
             return stats;
         }
 
+        // Editor kehadiran khusus admin: ubah jam kedatangan/kepulangan, status, keterangan.
+        function renderAdminEditor() {
+            const box = document.getElementById("admin-editor-box");
+            if (!box) return;
+            const month = parseInt(document.getElementById("admin-month-select")?.value, 10) || 0;
+            const year = parseInt(document.getElementById("admin-year-input")?.value, 10) || getIndoNow().year;
+            const filterId = document.getElementById("admin-teacher-filter")?.value || "ALL";
+            const teacher = state.teachers.find(t => t.id === filterId);
+            if (!teacher) {
+                box.innerHTML = `<p class="text-xs text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-4 text-center">Pilih satu guru pada <b>Filter Guru</b> di atas untuk mengedit jam kedatangan dan kepulangan.</p>`;
+                return;
+            }
+            const tRecords = state.records[teacher.id] || {};
+            const statuses = ["", "Hadir", "Izin", "Sakit", "Dinas Luar", "Libur"];
+            let rows = "";
+            for (let d = 1; d <= getDaysInMonth(year, month); d++) {
+                const dateKey = makeDateKey(year, month, d);
+                const rec = tRecords[dateKey] || { timeIn: "", timeOut: "", status: "", note: "" };
+                const inp = (field, ph) => `<input type="text" inputmode="numeric" maxlength="5" value="${escapeHtml(rec[field] || "")}" placeholder="${ph}"
+                    onchange="updateSheetCell('${teacher.id}', '${dateKey}', '${field}', this)"
+                    class="w-16 px-1.5 py-1 rounded-lg border border-slate-200 text-center text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-600">`;
+                rows += `
+                    <tr class="hover:bg-blue-50/40">
+                        <td class="py-1.5 px-3 font-bold text-slate-700">${getDayNameID(year, month, d)}</td>
+                        <td class="py-1.5 px-3 font-semibold text-slate-800">${d} ${MONTHS_ID[month]} ${year}</td>
+                        <td class="py-1.5 px-3 text-center">${inp("timeIn", "--:--")}</td>
+                        <td class="py-1.5 px-3 text-center">${inp("timeOut", "--:--")}</td>
+                        <td class="py-1.5 px-3">
+                            <select onchange="updateSheetCell('${teacher.id}', '${dateKey}', 'status', this)" class="px-2 py-1 rounded-lg border border-slate-200 text-xs font-bold bg-white">
+                                ${statuses.map(st => `<option value="${st}" ${rec.status === st ? "selected" : ""}>${st || "-"}</option>`).join("")}
+                            </select>
+                        </td>
+                        <td class="py-1.5 px-3">
+                            <input type="text" value="${escapeHtml(rec.note || "")}" placeholder="Keterangan..."
+                                onchange="updateSheetCell('${teacher.id}', '${dateKey}', 'note', this)"
+                                class="w-full min-w-[120px] px-2 py-1 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-blue-600">
+                        </td>
+                    </tr>`;
+            }
+            box.innerHTML = `
+                <div class="overflow-x-auto rounded-2xl border border-blue-200">
+                    <table class="w-full text-xs">
+                        <thead class="bg-blue-900 text-white text-left">
+                            <tr>
+                                <th class="py-2 px-3">Hari</th><th class="py-2 px-3">Tanggal</th>
+                                <th class="py-2 px-3 text-center">Datang</th><th class="py-2 px-3 text-center">Pulang</th>
+                                <th class="py-2 px-3">Status</th><th class="py-2 px-3">Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">${rows}</tbody>
+                    </table>
+                </div>`;
+        }
+
         function renderAdminDashboard() {
             const month = parseInt(document.getElementById("admin-month-select")?.value, 10) || 0;
             const year = parseInt(document.getElementById("admin-year-input")?.value, 10) || new Date().getFullYear();
             const filterId = document.getElementById("admin-teacher-filter")?.value || "ALL";
 
             const subEl = document.getElementById("admin-monthly-subtitle");
-            if (subEl) subEl.textContent = `REKAPITULASI DAFTAR HADIR BULAN ${MONTHS_ID[month].toUpperCase()} ${year}`;
+            if (subEl) subEl.innerHTML = `DAFTAR HADIR TENAGA PENDIDIK DAN KEPENDIDIKAN<br><span class="text-blue-800">REKAPITULASI BULAN ${MONTHS_ID[month].toUpperCase()} ${year}</span>`;
 
             updateAdminSignatureBlock();
+            renderAdminEditor();
 
             const summaryBody = document.getElementById("admin-summary-tbody");
             const targetTeachers = filterId === "ALL"
@@ -1510,7 +1666,7 @@
                         <!-- Judul & Identitas Lembar -->
                         <div class="flex flex-wrap items-start justify-between gap-2 mb-4">
                             <div class="space-y-1 text-xs sm:text-sm">
-                                <h4 class="font-extrabold text-blue-950 uppercase tracking-wide text-sm sm:text-base mb-1.5">DAFTAR HADIR GURU & TENAGA PENDIDIK</h4>
+                                <h4 class="font-extrabold text-blue-950 uppercase tracking-wide text-sm sm:text-base mb-1.5">DAFTAR HADIR TENAGA PENDIDIK DAN KEPENDIDIKAN</h4>
                                 <p><span class="inline-block w-28 font-semibold text-slate-600">Nama</span>: <strong class="text-slate-950">${escapeHtml(teacher.name)}</strong></p>
                                 <p><span class="inline-block w-28 font-semibold text-slate-600">Jabatan</span>: <strong class="text-slate-900">${escapeHtml(teacher.role)}</strong></p>
                                 <p><span class="inline-block w-28 font-semibold text-slate-600">Bulan / Tahun</span>: <strong class="text-slate-900">${MONTHS_ID[month]} ${year}</strong></p>
@@ -1764,6 +1920,7 @@
             if (loginMode === "admin") {
                 if (pass.trim() !== ADMIN_PASSWORD) { showLoginError("Password admin salah."); return; }
                 isAdminUnlocked = true;
+                refreshQuickDayOptions(); renderQuickRecentList(); renderTeacherSheet();
                 document.getElementById("login-overlay").classList.add("hidden");
                 switchMainView("admin");
                 showToast("🔓 Masuk sebagai Admin.");
@@ -1794,6 +1951,7 @@
         window.logoutAll = function () {
             sessionTeacher = "";
             isAdminUnlocked = false;
+            refreshQuickDayOptions(); renderQuickRecentList(); renderTeacherSheet();
             try { sessionStorage.removeItem(SESSION_KEY); } catch (err) {}
             state.coverIdentity = { name: "", role: "" };
             saveState();
@@ -1804,10 +1962,10 @@
         };
 
         function initApp() {
-            const now = new Date();
-            const curMonth = now.getMonth();
-            const curYear = now.getFullYear();
-            const curDay = now.getDate();
+            const now = getIndoNow();
+            const curMonth = now.month;
+            const curYear = now.year;
+            const curDay = now.day;
 
             populateMonthSelect(document.getElementById("quick-month"), curMonth);
             populateMonthSelect(document.getElementById("teacher-month-select"), curMonth);
@@ -1818,6 +1976,7 @@
             document.getElementById("admin-year-input").value = curYear;
 
             populateQuickDaySelect(curYear, curMonth, curDay);
+            refreshQuickDayOptions();
 
             if (sessionTeacher) {
                 document.getElementById("quick-name").value = sessionTeacher;
