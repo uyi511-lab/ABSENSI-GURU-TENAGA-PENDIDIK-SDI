@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi Guru & Tenaga Pendidik Digital - SD Islam Hidayatullah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #e0f2fe 100%);
+        }
+        @media print {
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .print-sheet {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                page-break-after: always;
+            }
+            .print-sheet:last-child {
+                page-break-after: auto;
+            }
+            .print-clean-input {
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+            }
+        }
+        .fade-in {
+            animation: fadeIn 0.22s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 pb-12">
+
+    <!-- Navbar Utama -->
+    <header class="no-print sticky top-0 z-30 bg-gradient-to-r from-blue-950 via-blue-900 to-blue-800 text-white shadow-lg border-b border-blue-700/60">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center text-xl shadow-inner">
+                    📋
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-extrabold tracking-tight leading-tight">ABSENSI DIGITAL GURU & TENDIK</h1>
+                    <p id="nav-school-name" class="text-[11px] sm:text-xs text-blue-200 font-medium">SD ISLAM HIDAYATULLAH MARTAPURA</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button id="btn-nav-guru" onclick="switchMainView('guru')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-blue-900 shadow transition">
+                    ✍️ Isi Absen (Guru)
+                </button>
+                <button id="btn-nav-admin" onclick="openAdminAccess()" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-blue-700/70 hover:bg-blue-600 text-white border border-blue-400/30 transition">
+                    📊 Laporan Admin
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Notifikasi Toast -->
+    <div id="toast-box" class="no-print hidden fixed bottom-5 right-5 z-50 max-w-sm bg-blue-950 text-white px-4 py-3 rounded-2xl shadow-xl border border-blue-700 text-xs sm:text-sm font-semibold flex items-center gap-2.5 fade-in">
+        <span id="toast-msg">Tersimpan</span>
+    </div>
+
+    <!-- Modal Konfirmasi Hapus Data Nama -->
+    <div id="delete-modal" class="no-print hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-rose-100 fade-in">
+            <div class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl mx-auto mb-3">
+                🗑️
+            </div>
+            <h3 class="text-lg font-extrabold text-slate-900 text-center">Hapus Data Nama?</h3>
+            <p id="delete-modal-desc" class="text-xs sm:text-sm text-slate-600 text-center mt-2 leading-relaxed">
+                Data guru beserta seluruh riwayat absensinya akan dihapus permanen.
+            </p>
+            <div class="flex gap-3 mt-6">
+                <button type="button" onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm transition">
+                    Batal
+                </button>
+                <button type="button" id="confirm-delete-btn" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs sm:text-sm shadow transition">
+                    Ya, Hapus Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal PIN Admin -->
+    <div id="pin-modal" class="no-print hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-blue-100 fade-in">
+            <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl mx-auto mb-3">
+                🔐
+            </div>
+            <h3 class="text-lg font-extrabold text-blue-950 text-center">Akses Halaman Admin</h3>
+            <p class="text-xs text-slate-500 text-center mt-1 mb-4">Masukkan PIN Admin untuk membuka laporan</p>
+            <div class="relative">
+                <input type="password" id="admin-pin-input" maxlength="20" placeholder="Masukkan PIN..." onkeydown="if(event.key==='Enter') verifyAdminPin()" class="w-full pl-4 pr-11 py-2.5 rounded-xl border border-blue-200 text-center font-extrabold tracking-wider text-base focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <button type="button" id="toggle-pin-eye-btn" onclick="toggleAdminPinVisibility()" title="Lihat / Sembunyikan PIN" class="absolute inset-y-0 right-0 px-3 flex items-center justify-center text-slate-500 hover:text-blue-800 transition">
+                    <svg id="eye-icon-open" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg id="eye-icon-closed" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                </button>
+            </div>
+            <div id="pin-error-text" class="hidden mt-2.5 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-bold text-center flex items-center justify-center gap-1.5">
+                <span>PIN salah! Klik gambar mata</span>
+                <button type="button" onclick="toggleAdminPinVisibility(true)" class="inline-flex items-center gap-1 underline text-rose-800 hover:text-rose-950">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span>untuk melihat ketikan PIN</span>
+                </button>
+            </div>
+            <div class="flex gap-2.5 mt-5">
+                <button type="button" onclick="closePinModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm">
+                    Batal
+                </button>
+                <button type="button" onclick="verifyAdminPin()" class="flex-1 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs sm:text-sm shadow">
+                    Masuk Admin
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 1: HALAMAN GURU (SLIDE 1 & LEMBAR BULANAN GURU)      -->
+    <!-- ========================================================= -->
+    <main id="view-guru" class="max-w-5xl mx-auto px-4 pt-6 space-y-6">
+
+        <!-- KOP SURAT COVER DEPAN -->
+        <section class="bg-white rounded-3xl shadow-md border border-blue-200/80 p-4 sm:p-6">
+            <div class="flex items-center justify-between gap-3 border-b-2 border-blue-950 pb-4">
+                <!-- Logo Kiri: Kabupaten Banjar (Klik untuk masukkan manual logo) -->
+                <div onclick="triggerManualLogoUpload('left')" title="Klik untuk memasukkan manual Logo Kiri" class="relative group cursor-pointer w-16 h-20 sm:w-20 sm:h-24 shrink-0 flex items-center justify-center rounded-xl hover:ring-2 hover:ring-blue-400 transition">
+                    <img data-logo-side="left" src="image_24d946.png" alt="Logo Kabupaten Banjar" onerror="if(this.dataset.custom){return;}if(this.src.indexOf('image_24d946.png')!==-1){this.src='image_24d1c3.png';}else if(this.src.indexOf('image_24d1c3.png')!==-1){this.src='image_23e184.png';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" class="w-full h-full object-contain">
+                    <svg style="display:none" viewBox="0 0 120 145" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8,6 H112 V82 C112,115 60,139 60,139 C60,139 8,115 8,82 Z" fill="#63bce5" stroke="#facc15" stroke-width="5"/>
+                        <rect x="11" y="9" width="98" height="22" fill="#0b4f8a"/>
+                        <text x="60" y="25" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-weight="900" font-size="16" letter-spacing="2">BANJAR</text>
+                        <line x1="8" y1="33" x2="112" y2="33" stroke="#facc15" stroke-width="4"/>
+                        <polygon points="60,37 64,47 75,47 66,53 69,63 60,57 51,63 54,53 45,47 56,47" fill="#fde047" stroke="#854d0e" stroke-width="1"/>
+                        <path d="M40,120 C22,102 22,68 35,48" fill="none" stroke="#15803d" stroke-width="4"/>
+                        <circle cx="31" cy="54" r="4" fill="#ffffff" stroke="#15803d" stroke-width="1.5"/>
+                        <circle cx="28" cy="66" r="4" fill="#ffffff" stroke="#15803d" stroke-width="1.5"/>
+                        <circle cx="28" cy="78" r="4" fill="#ffffff" stroke="#15803d" stroke-width="1.5"/>
+                        <circle cx="31" cy="90" r="4" fill="#ffffff" stroke="#15803d" stroke-width="1.5"/>
+                        <circle cx="35" cy="102" r="4" fill="#ffffff" stroke="#15803d" stroke-width="1.5"/>
+                        <path d="M80,120 C98,102 98,68 85,48" fill="none" stroke="#eab308" stroke-width="4"/>
+                        <ellipse cx="89" cy="55" rx="3" ry="5" fill="#fde047" stroke="#854d0e" stroke-width="1"/>
+                        <ellipse cx="92" cy="67" rx="3" ry="5" fill="#fde047" stroke="#854d0e" stroke-width="1"/>
+                        <ellipse cx="92" cy="79" rx="3" ry="5" fill="#fde047" stroke="#854d0e" stroke-width="1"/>
+                        <ellipse cx="89" cy="91" rx="3" ry="5" fill="#fde047" stroke="#854d0e" stroke-width="1"/>
+                        <ellipse cx="85" cy="103" rx="3" ry="5" fill="#fde047" stroke="#854d0e" stroke-width="1"/>
+                        <polygon points="48,78 72,78 78,85 60,101 42,85" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+                        <line x1="42" y1="85" x2="78" y2="85" stroke="#64748b" stroke-width="1"/>
+                        <line x1="60" y1="62" x2="60" y2="73" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="47" y1="66" x2="51" y2="75" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="73" y1="66" x2="69" y2="75" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M35,112 Q60,103 85,112 L82,121 Q60,113 38,121 Z" fill="#ffffff" stroke="#1e293b" stroke-width="1.2"/>
+                        <text x="60" y="116" text-anchor="middle" fill="#0f172a" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">BARAKAT</text>
+                    </svg>
+                    <span class="no-print absolute -bottom-1.5 inset-x-0 text-center bg-blue-900/90 text-white text-[9px] font-bold py-0.5 rounded-md opacity-85 group-hover:opacity-100">📷 Ganti</span>
+                </div>
+
+                <!-- Teks Kop Tengah -->
+                <div class="text-center flex-1 px-1">
+                    <p class="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-blue-800">Yayasan Pondok Pesantren Hidayatullah Martapura</p>
+                    <h2 id="cover-school-title" class="text-lg sm:text-2xl font-extrabold text-blue-950 tracking-tight leading-snug mt-0.5">SD ISLAM HIDAYATULLAH</h2>
+                    <p id="cover-school-addr" class="text-[11px] sm:text-xs text-slate-600 font-medium mt-0.5">Komplek Ponpes Hidayatullah Taman Hudaya Jl. Irigasi Teluk Sanggar Bincau Martapura Kabupaten Banjar 70651</p>
+                    <div id="cover-identity-badge" class="inline-block mt-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[11px] font-extrabold text-blue-900">
+                        DAFTAR HADIR GURU & TENAGA PENDIDIK
+                    </div>
+                </div>
+
+                <!-- Logo Kanan: Ponpes Hidayatullah Martapura (Klik untuk masukkan manual logo) -->
+                <div onclick="triggerManualLogoUpload('right')" title="Klik untuk memasukkan manual Logo Kanan" class="relative group cursor-pointer w-16 h-20 sm:w-20 sm:h-24 shrink-0 flex items-center justify-center overflow-hidden rounded-xl hover:ring-2 hover:ring-blue-400 transition">
+                    <img data-logo-side="right" src="image_24d981.png" alt="Logo SDI Hidayatullah Martapura" onerror="if(this.dataset.custom){return;}if(this.src.indexOf('image_24d981.png')!==-1){this.src='image_24d1e2.png';}else if(this.src.indexOf('image_24d1e2.png')!==-1){this.src='image_24c643.png';}else if(this.src.indexOf('image_24c643.png')!==-1){this.src='image_24b761.png';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" class="w-full h-full object-contain">
+                    <svg style="display:none" viewBox="0 0 120 155" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="0" y="0" width="120" height="155" fill="#f78e46"/>
+                        <path d="M26,10 H94 C94,20 102,26 112,26 V92 C112,124 60,147 60,147 C60,147 8,124 8,92 V26 C18,26 26,20 26,10 Z" fill="#009a49" stroke="#064e3b" stroke-width="2.5"/>
+                        <polygon points="60,16 63.5,25 73,25 65.5,30.5 68.5,40 60,34.5 51.5,40 54.5,30.5 47,25 56.5,25" fill="#fde047" stroke="#854d0e" stroke-width="0.8"/>
+                        <path d="M60,42 A26,26 0 1,0 85,72 A21,21 0 1,1 48,47 Z" fill="#ffffff"/>
+                        <text x="60" y="58" text-anchor="middle" fill="#022c22" font-family="Arial, sans-serif" font-weight="800" font-size="6.2">PONDOK</text>
+                        <text x="60" y="66" text-anchor="middle" fill="#022c22" font-family="Arial, sans-serif" font-weight="800" font-size="6.2">PESANTREN</text>
+                        <text x="60" y="74" text-anchor="middle" fill="#022c22" font-family="Arial, sans-serif" font-weight="800" font-size="6.2">HIDAYATULLAH</text>
+                        <text x="60" y="82" text-anchor="middle" fill="#022c22" font-family="Arial, sans-serif" font-weight="800" font-size="6.2">MARTAPURA</text>
+                        <path d="M26,125 C16,99 16,58 22,34" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+                        <path d="M26,125 C16,99 16,58 22,34" fill="none" stroke="#1e293b" stroke-width="2" stroke-dasharray="3,4"/>
+                        <path d="M94,125 C104,99 104,58 98,34" fill="none" stroke="#facc15" stroke-width="5" stroke-linecap="round"/>
+                        <path d="M94,125 C104,99 104,58 98,34" fill="none" stroke="#a16207" stroke-width="1.8" stroke-dasharray="3,3"/>
+                        <polygon points="50,102 70,102 75,108 60,119 45,108" fill="#ffffff" stroke="#064e3b" stroke-width="1.2"/>
+                        <path d="M44,121 Q60,118 60,123 Q60,118 76,121 L76,131 Q60,128 60,133 Q60,128 44,131 Z" fill="#ffffff" stroke="#064e3b" stroke-width="1.2"/>
+                    </svg>
+                    <span class="no-print absolute -bottom-1.5 inset-x-0 text-center bg-blue-900/90 text-white text-[9px] font-bold py-0.5 rounded-md opacity-85 group-hover:opacity-100">📷 Ganti</span>
+                </div>
+            </div>
+
+            <!-- Input File Tersembunyi untuk Unggah Manual Logo -->
+            <input type="file" id="manual-logo-file-input" accept="image/*" onchange="handleManualLogoFile(event)" class="hidden">
+
+            <!-- Sub-tab Guru: Slide 1 (Isi Cepat) vs Lembar Bulanan -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-4">
+                <div class="flex gap-2">
+                    <button id="tab-quick-btn" onclick="switchGuruTab('quick')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-blue-800 text-white shadow">
+                        ⚡ Slide 1: Isi Absen Cepat
+                    </button>
+                    <button id="tab-sheet-btn" onclick="switchGuruTab('sheet')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200">
+                        📅 Lembar Bulanan Guru
+                    </button>
+                </div>
+                <span id="live-indo-clock" class="text-xs font-extrabold text-blue-900 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200">
+                    🕒 WITA --:--
+                </span>
+            </div>
+        </section>
+
+        <!-- SLIDE 1: FORM INPUT CEPAT GURU -->
+        <section id="guru-quick-panel" class="space-y-6 fade-in">
+            <div class="bg-white rounded-3xl shadow-md border border-blue-200/80 p-5 sm:p-7">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-base sm:text-lg font-extrabold text-blue-950">Formulir Kehadiran Harian</h3>
+                        <p class="text-xs text-slate-500">Ketik nama lengkap Anda, pilih tanggal, dan masukkan jam dalam waktu Indonesia (24 jam).</p>
+                    </div>
+                </div>
+
+                <form onsubmit="submitQuickAttendance(event)" class="space-y-4">
+                    <!-- Nama & Jabatan (Ketik Langsung Bukan Dropdown) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div>
+                            <label for="quick-name" class="block text-xs font-extrabold text-blue-950 mb-1">Nama Guru / Tenaga Pendidik *</label>
+                            <input type="text" id="quick-name" required autocomplete="off" placeholder="Ketik nama lengkap Anda..." oninput="syncCoverIdentityToAdmin()" class="w-full px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        </div>
+                        <div>
+                            <label for="quick-role" class="block text-xs font-extrabold text-blue-950 mb-1">Jabatan / Tugas Mengajar *</label>
+                            <input type="text" id="quick-role" required placeholder="Contoh: Guru Kelas IV / Guru PAI / Tendik" oninput="syncCoverIdentityToAdmin()" class="w-full px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        </div>
+                    </div>
+
+                    <!-- Tanggal, Bulan, Tahun, dan Hari Otomatis -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div>
+                            <label for="quick-day" class="block text-xs font-extrabold text-blue-950 mb-1">Tanggal</label>
+                            <select id="quick-day" onchange="updateQuickAutoDay()" class="w-full px-3 py-2.5 rounded-xl border border-blue-200 text-sm font-bold bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"></select>
+                        </div>
+                        <div>
+                            <label for="quick-month" class="block text-xs font-extrabold text-blue-950 mb-1">Bulan</label>
+                            <select id="quick-month" onchange="onQuickPeriodChange()" class="w-full px-3 py-2.5 rounded-xl border border-blue-200 text-sm font-bold bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"></select>
+                        </div>
+                        <div>
+                            <label for="quick-year" class="block text-xs font-extrabold text-blue-950 mb-1">Tahun</label>
+                            <input type="number" id="quick-year" min="2020" max="2099" onchange="onQuickPeriodChange()" class="w-full px-3 py-2.5 rounded-xl border border-blue-200 text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        </div>
+                        <div>
+                            <label for="quick-dayname" class="block text-xs font-extrabold text-blue-950 mb-1">Hari (Otomatis)</label>
+                            <input type="text" id="quick-dayname" readonly class="w-full px-3 py-2.5 rounded-xl border border-blue-200 bg-blue-50/80 text-blue-950 text-sm font-extrabold text-center cursor-not-allowed">
+                        </div>
+                    </div>
+
+                    <!-- Jam Datang, Jam Pulang (24 Jam Indonesia), Status & Keterangan -->
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-xs font-extrabold text-blue-950 mb-1">Jam Datang (24 Jam)</label>
+                            <div class="flex gap-1.5">
+                                <input type="text" id="quick-in" inputmode="numeric" maxlength="5" placeholder="07:00" onblur="formatIndoTimeInput(this)" class="w-full px-3 py-2 rounded-xl border border-blue-200 text-sm font-bold text-center tracking-wider">
+                                <button type="button" onclick="fillQuickTime('quick-in')" title="Isi Jam Sekarang (Waktu Indonesia)" class="px-2.5 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-xl text-xs font-bold">🕒</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-blue-950 mb-1">Jam Pulang (24 Jam)</label>
+                            <div class="flex gap-1.5">
+                                <input type="text" id="quick-out" inputmode="numeric" maxlength="5" placeholder="14:00" onblur="formatIndoTimeInput(this)" class="w-full px-3 py-2 rounded-xl border border-blue-200 text-sm font-bold text-center tracking-wider">
+                                <button type="button" onclick="fillQuickTime('quick-out')" title="Isi Jam Sekarang (Waktu Indonesia)" class="px-2.5 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-xl text-xs font-bold">🕒</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-blue-950 mb-1">Status Kehadiran</label>
+                            <select id="quick-status" class="w-full px-3 py-2 rounded-xl border border-blue-200 text-sm font-bold bg-white">
+                                <option value="Hadir">Hadir</option>
+                                <option value="Izin">Izin</option>
+                                <option value="Sakit">Sakit</option>
+                                <option value="Dinas Luar">Dinas Luar</option>
+                                <option value="Libur">Libur</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-blue-950 mb-1">Keterangan</label>
+                            <input type="text" id="quick-note" placeholder="Opsional..." class="w-full px-3 py-2 rounded-xl border border-blue-200 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="pt-2 flex flex-wrap items-center justify-between gap-3">
+                        <p class="text-[11px] text-slate-500">⏰ Absen hanya dapat diisi mulai <b>hari H pukul 07:00 WITA</b>. Tips: Ketik 4 angka seperti <b>0715</b> → <b>07:15</b>.</p>
+                        <button type="submit" class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-800 to-blue-600 hover:from-blue-900 hover:to-blue-700 text-white font-extrabold text-sm shadow-md transition">
+                            ✅ Simpan Kehadiran
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Riwayat Absen Terakhir (Bisa Langsung Edit Jam Datang / Pulang & Hapus Riwayat) -->
+            <div class="bg-white rounded-3xl shadow-md border border-blue-200/80 p-5 sm:p-6">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div>
+                        <h4 class="text-sm sm:text-base font-extrabold text-blue-950">🕒 Riwayat Absen Terakhir</h4>
+                        <p class="text-[11px] text-slate-500">Lupa mengisi atau keliru jam datang/pulang? Ubah langsung atau hapus riwayat di bawah ini.</p>
+                    </div>
+                </div>
+                <div id="quick-recent-list" class="space-y-2.5"></div>
+            </div>
+        </section>
+
+        <!-- SLIDE 2: LEMBAR BULANAN PER GURU -->
+        <section id="guru-sheet-panel" class="hidden space-y-4 fade-in">
+            <div class="bg-white rounded-3xl shadow-md border border-blue-200/80 p-5">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+                    <div>
+                        <label class="block text-xs font-extrabold text-blue-950 mb-1">Pilih Nama Guru / Tendik</label>
+                        <select id="teacher-sheet-select" onchange="onSelectTeacherSheet()" class="w-full px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm font-bold bg-white"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-blue-950 mb-1">Bulan</label>
+                        <select id="teacher-month-select" onchange="renderTeacherSheet()" class="w-full px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm font-bold bg-white"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-blue-950 mb-1">Tahun</label>
+                        <input type="number" id="teacher-year-input" min="2020" max="2099" onchange="renderTeacherSheet()" class="w-full px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm font-bold text-center">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-md border border-blue-200/80 overflow-hidden">
+                <div class="p-4 bg-blue-900 text-white flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h4 id="sheet-teacher-title" class="font-extrabold text-sm sm:text-base">Lembar Kehadiran Bulanan</h4>
+                        <p id="sheet-teacher-subtitle" class="text-xs text-blue-200">Sesuai kalender bulan aktif</p>
+                    </div>
+                    <span class="text-[11px] bg-white/15 px-3 py-1 rounded-full font-semibold">Format Waktu 24 Jam (WITA)</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                        <thead>
+                            <tr class="bg-blue-50 text-blue-950 border-b border-blue-200">
+                                <th class="py-2.5 px-3 font-extrabold">Hari (Otomatis)</th>
+                                <th class="py-2.5 px-3 font-extrabold">Tanggal</th>
+                                <th class="py-2.5 px-3 font-extrabold text-center">Datang</th>
+                                <th class="py-2.5 px-3 font-extrabold text-center">Pulang</th>
+                                <th class="py-2.5 px-3 font-extrabold">Status</th>
+                                <th class="py-2.5 px-3 font-extrabold">Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-sheet-tbody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 2: HALAMAN LAPORAN ADMIN                             -->
+    <!-- ========================================================= -->
+    <main id="view-admin" class="hidden max-w-6xl mx-auto px-4 pt-6 space-y-6">
+
+        <!-- Bilah Kontrol Admin (Tidak ikut tercetak) -->
+        <section class="no-print bg-white rounded-3xl shadow-md border border-blue-200/80 p-4 sm:p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                <div>
+                    <h2 class="text-base sm:text-lg font-extrabold text-blue-950">📊 Panel Laporan & Rekapitulasi Admin</h2>
+                    <p class="text-xs text-slate-500">Kelola data guru, edit jam kehadiran, ganti nama Kepala Sekolah, atau cetak laporan.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="switchMainView('guru')" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs">
+                        ← Kembali ke Cover 1
+                    </button>
+                    <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow">
+                        🖨️ Cetak / Simpan PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter & Tab Admin -->
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+                <div>
+                    <label class="block text-xs font-extrabold text-blue-950 mb-1">Filter Bulan Laporan</label>
+                    <select id="admin-month-select" onchange="onAdminPeriodChange()" class="w-full px-3 py-2 rounded-xl border border-blue-200 text-xs sm:text-sm font-bold bg-white"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-extrabold text-blue-950 mb-1">Filter Tahun</label>
+                    <input type="number" id="admin-year-input" min="2020" max="2099" onchange="onAdminPeriodChange()" class="w-full px-3 py-2 rounded-xl border border-blue-200 text-xs sm:text-sm font-bold text-center">
+                </div>
+                <div>
+                    <label class="block text-xs font-extrabold text-blue-950 mb-1">Filter Guru (Untuk Lembar & 12 Bulan)</label>
+                    <select id="admin-teacher-filter" onchange="renderAdminDashboard()" class="w-full px-3 py-2 rounded-xl border border-blue-200 text-xs sm:text-sm font-bold bg-white"></select>
+                </div>
+                <div class="flex gap-1.5">
+                    <button id="admin-tab-rekap" onclick="switchAdminTab('rekap')" class="flex-1 py-2 px-2.5 rounded-xl bg-blue-800 text-white font-bold text-xs">
+                        📋 Laporan Bulanan
+                    </button>
+                    <button id="admin-tab-manage" onclick="switchAdminTab('manage')" class="flex-1 py-2 px-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 font-bold text-xs">
+                        👥 Kelola & Sekolah
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB ADMIN 1: LAPORAN REKAP & LEMBAR PER GURU -->
+        <div id="admin-panel-rekap" class="space-y-6">
+
+            <!-- LEMBAR 1: REKAPITULASI SEMUA GURU BULAN AKTIF -->
+            <section class="print-sheet bg-white rounded-3xl shadow-md border border-blue-200/80 p-5 sm:p-8">
+                <!-- Kop Surat Laporan Admin -->
+                <div class="flex items-center justify-between gap-4 border-b-2 border-blue-950 pb-4 mb-6">
+                    <!-- Logo Kiri: Kabupaten Banjar -->
+                    <div class="w-16 h-20 sm:w-20 sm:h-24 shrink-0 flex items-center justify-center">
+                        <img data-logo-side="left" src="image_24d946.png" alt="Logo Kabupaten Banjar" onerror="if(this.dataset.custom){return;}if(this.src.indexOf('image_24d946.png')!==-1){this.src='image_24d1c3.png';}else if(this.src.indexOf('image_24d1c3.png')!==-1){this.src='image_23e184.png';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" class="w-full h-full object-contain">
+                        <svg style="display:none" viewBox="0 0 120 145" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8,6 H112 V82 C112,115 60,139 60,139 C60,139 8,115 8,82 Z" fill="#63bce5" stroke="#facc15" stroke-width="5"/>
+                            <rect x="11" y="9" width="98" height="22" fill="#0b4f8a"/>
+                            <text x="60" y="25" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-weight="900" font-size="16" letter-spacing="2">BANJAR</text>
+                            <line x1="8" y1="33" x2="112" y2="33" stroke="#facc15" stroke-width="4"/>
+                            <polygon points="60,37 64,47 75,47 66,53 69,63 60,57 51,63 54,53 45,47 56,47" fill="#fde047" stroke="#854d0e" stroke-width="1"/>
+                            <path d="M40,120 C22,102 22,68 35,48" fill="none" stroke="#15803d" stroke-width="4"/>
+                            <path d="M80,120 C98,102 98,68 85,48" fill="none" stroke="#eab308" stroke-width="4"/>
+                            <polygon points="48,78 72,78 78,85 60,101 42,85" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+                            <path d="M35,112 Q60,103 85,112 L82,121 Q60,113 38,121 Z" fill="#ffffff" stroke="#1e293b" stroke-width="1.2"/>
+                            <text x="60" y="116" text-anchor="middle" fill="#0f172a" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">BARAKAT</text>
+                        </svg>
+                    </div>
+
+                    <!-- Teks Kop Tengah -->
+                    <div class="text-center flex-1 px-2">
+                        <p class="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-blue-800">Yayasan Pondok Pesantren Hidayatullah Martapura</p>
+                        <h3 class="admin-school-title text-lg sm:text-2xl font-extrabold text-blue-950 tracking-tight mt-0.5">SD ISLAM HIDAYATULLAH</h3>
+                        <p class="admin-school-addr text-[11px] sm:text-xs text-slate-600 font-medium mt-0.5">Komplek Ponpes Hidayatullah Taman Hudaya Jl. Irigasi Teluk Sanggar Bincau Martapura Kabupaten Banjar 70651</p>
+                        <div class="inline-block mt-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200">
+                            <p id="admin-monthly-subtitle" class="text-[11px] sm:text-xs font-extrabold text-blue-950 tracking-wide">REKAPITULASI DAFTAR HADIR BULANAN</p>
+                        </div>
+                    </div>
+
+                    <!-- Logo Kanan: SDI Hidayatullah Martapura -->
+                    <div class="w-16 h-20 sm:w-20 sm:h-24 shrink-0 flex items-center justify-center overflow-hidden">
+                        <img data-logo-side="right" src="image_24d981.png" alt="Logo SDI Hidayatullah Martapura" onerror="if(this.dataset.custom){return;}if(this.src.indexOf('image_24d981.png')!==-1){this.src='image_24d1e2.png';}else if(this.src.indexOf('image_24d1e2.png')!==-1){this.src='image_24c643.png';}else if(this.src.indexOf('image_24c643.png')!==-1){this.src='image_24b761.png';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" class="w-full h-full object-contain">
+                        <svg style="display:none" viewBox="0 0 120 155" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="0" y="0" width="120" height="155" fill="#f78e46"/>
+                            <path d="M26,10 H94 C94,20 102,26 112,26 V92 C112,124 60,147 60,147 C60,147 8,124 8,92 V26 C18,26 26,20 26,10 Z" fill="#009a49" stroke="#064e3b" stroke-width="2.5"/>
+                            <polygon points="60,16 63.5,25 73,25 65.5,30.5 68.5,40 60,34.5 51.5,40 54.5,30.5 47,25 56.5,25" fill="#fde047"/>
+                            <path d="M60,42 A26,26 0 1,0 85,72 A21,21 0 1,1 48,47 Z" fill="#ffffff"/>
+                            <text x="60" y="66" text-anchor="middle" fill="#022c22" font-family="Arial, sans-serif" font-weight="800" font-size="6.2">PONPES HIDAYATULLAH</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Tabel Rekap Semua Guru -->
+                <div class="overflow-x-auto rounded-xl border border-slate-300">
+                    <table class="w-full border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-blue-950 text-white">
+                                <th class="border-r border-blue-800 py-2.5 px-2 text-center w-10">No</th>
+                                <th class="border-r border-blue-800 py-2.5 px-3 text-left">Nama Guru / Tenaga Pendidik</th>
+                                <th class="border-r border-blue-800 py-2.5 px-3 text-left">Jabatan</th>
+                                <th class="border-r border-blue-800 py-2.5 px-2 text-center w-16">Hadir</th>
+                                <th class="border-r border-blue-800 py-2.5 px-2 text-center w-16">Izin</th>
+                                <th class="border-r border-blue-800 py-2.5 px-2 text-center w-16">Sakit</th>
+                                <th class="border-r border-blue-800 py-2.5 px-2 text-center w-16">Dinas</th>
+                                <th class="border-r border-blue-800 py-2.5 px-2 text-center w-16">Libur</th>
+                                <th class="no-print py-2.5 px-2 text-center w-28">Aksi Data</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-summary-tbody" class="divide-y divide-slate-200"></tbody>
+                    </table>
+                </div>
+
+                <!-- Tanda Tangan Pengesahan (Simetris Kiri & Kanan) -->
+                <div class="mt-10 pt-2 grid grid-cols-2 gap-8 text-xs sm:text-sm items-start">
+                    <div class="text-center flex flex-col items-center">
+                        <p class="text-slate-600 leading-snug">Mengetahui,</p>
+                        <p id="sign-left-title" class="font-bold text-slate-900 mt-0.5 leading-snug">Kepala SD Islam Hidayatullah</p>
+                        <div class="h-16 sm:h-20"></div>
+                        <input type="text" id="sign-principal-input" onchange="updatePrincipalName(this.value)" placeholder="Ketik Nama Kepala Sekolah..." title="Klik untuk mengganti nama Kepala Sekolah" class="print-clean-input w-full max-w-[260px] text-center font-extrabold underline text-slate-950 border-b border-dashed border-blue-400 bg-blue-50/40 rounded px-2 py-1 leading-snug focus:outline-none focus:bg-blue-50">
+                        <p class="no-print text-[10px] text-blue-700 mt-1">✏️ Klik nama Kepala Sekolah untuk mengganti</p>
+                    </div>
+                    <div class="text-center flex flex-col items-center">
+                        <p id="sign-date-text" class="text-slate-700 font-semibold leading-snug">Martapura, 30 November 2026</p>
+                        <p id="sign-right-role" class="font-bold text-slate-900 mt-0.5 leading-snug">Guru / Tenaga Pendidik</p>
+                        <div class="h-16 sm:h-20"></div>
+                        <p id="sign-right-name" class="font-extrabold underline text-slate-950 py-1 leading-snug">........................................</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LEMBAR 2: REKAP 12 BULAN & LEMBAR HARIAN PER GURU -->
+            <div id="admin-per-teacher-container" class="space-y-6"></div>
+        </div>
+
+        <!-- TAB ADMIN 2: KELOLA DATA GURU & PENGATURAN SEKOLAH -->
+        <div id="admin-panel-manage" class="hidden space-y-6 fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Pengaturan Identitas Sekolah & PIN -->
+                <div class="bg-white rounded-3xl shadow-md border border-blue-200/80 p-5 sm:p-6 space-y-4">
+                    <h3 class="text-base font-extrabold text-blue-950 border-b border-slate-100 pb-2.5">⚙️ Pengaturan Sekolah & Kepala Sekolah</h3>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-700 mb-1">Nama Sekolah</label>
+                        <input type="text" id="setting-school-name" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-700 mb-1">Alamat Sekolah</label>
+                        <input type="text" id="setting-school-addr" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-700 mb-1">Nama Kepala Sekolah (Untuk Tanda Tangan)</label>
+                        <input type="text" id="setting-principal-name" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-700 mb-1">PIN Login Admin</label>
+                        <input type="text" id="setting-admin-pin" maxlength="20" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm font-bold">
+                    </div>
+
+                    <!-- Pengaturan Masukkan Manual Logo Kiri & Kanan -->
+                    <div class="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-2.5">
+                        <p class="text-xs font-extrabold text-blue-950">🖼️ Masukkan Manual Logo Kop Surat</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <button type="button" onclick="triggerManualLogoUpload('left')" class="px-3 py-2 rounded-xl bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 font-bold text-xs flex items-center justify-center gap-1.5">
+                                📁 Pilih Logo Kiri (Banjar)
+                            </button>
+                            <button type="button" onclick="triggerManualLogoUpload('right')" class="px-3 py-2 rounded-xl bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 font-bold text-xs flex items-center justify-center gap-1.5">
+                                📁 Pilih Logo Kanan (SDI)
+                            </button>
+                        </div>
+                        <button type="button" onclick="resetManualLogos()" class="w-full py-1.5 rounded-xl bg-slate-200/80 hover:bg-slate-300 text-slate-700 font-bold text-[11px]">
+                            ↺ Kembalikan Logo Bawaan
+                        </button>
+                    </div>
+
+                    <button type="button" onclick="saveSchoolSettings()" class="w-full py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-extrabold text-sm shadow">
+                        💾 Simpan Pengaturan Sekolah
+                    </button>
+                </div>
+
+                <!-- Daftar Nama Guru & Tendik (Dengan Fitur Hapus Data Nama) -->
+                <div class="bg-white rounded-3xl shadow-md border border-blue-200/80 p-5 sm:p-6 space-y-4">
+                    <h3 class="text-base font-extrabold text-blue-950 border-b border-slate-100 pb-2.5">👥 Kelola Data Nama Guru & Tendik</h3>
+                    <form onsubmit="adminAddTeacher(event)" class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="admin-new-name" required placeholder="Nama lengkap guru/tendik..." class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-bold">
+                        <input type="text" id="admin-new-role" required placeholder="Jabatan..." class="sm:w-40 px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                        <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shrink-0">
+                            + Tambah
+                        </button>
+                    </form>
+
+                    <div id="admin-teacher-manage-list" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const STORAGE_KEY = "absensi_sdi_hidayatullah_v4";
+        const MONTHS_ID = [
+            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        ];
+        const DAYS_ID = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+
+        const defaultState = {
+            settings: {
+                schoolName: "SD ISLAM HIDAYATULLAH",
+                schoolAddr: "Komplek Ponpes Hidayatullah Taman Hudaya Jl. Irigasi Teluk Sanggar Bincau Martapura Kabupaten Banjar 70651",
+                principalName: "Kepala SD Islam Hidayatullah",
+                adminPin: "Tahura*1028",
+                customLogoLeft: "",
+                customLogoRight: ""
+            },
+            teachers: [],
+            records: {},
+            quickLogs: [],
+            coverIdentity: {
+                name: "",
+                role: ""
+            }
+        };
+
+        let state = loadState();
+        let isAdminUnlocked = false;
+        let pendingDeleteTeacherId = null;
+        let pendingDeleteLog = null;
+        let pendingLogoSide = "left";
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return structuredClone(defaultState);
+                const parsed = JSON.parse(raw);
+                return {
+                    settings: {
+                        ...defaultState.settings,
+                        ...(parsed.settings || {}),
+                        adminPin: "Tahura*1028"
+                    },
+                    teachers: Array.isArray(parsed.teachers) ? parsed.teachers : [],
+                    records: parsed.records && typeof parsed.records === "object" ? parsed.records : {},
+                    quickLogs: Array.isArray(parsed.quickLogs) ? parsed.quickLogs : [],
+                    coverIdentity: { ...defaultState.coverIdentity, ...(parsed.coverIdentity || {}) }
+                };
+            } catch (err) {
+                return structuredClone(defaultState);
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (err) {
+                showToast("Gagal menyimpan ke penyimpanan browser.");
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function showToast(msg) {
+            const box = document.getElementById("toast-box");
+            const msgEl = document.getElementById("toast-msg");
+            if (!box || !msgEl) return;
+            msgEl.textContent = msg;
+            box.classList.remove("hidden");
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => box.classList.add("hidden"), 2800);
+        }
+
+        function getDaysInMonth(year, monthIndex) {
+            return new Date(year, monthIndex + 1, 0).getDate();
+        }
+
+        function getDayNameID(year, monthIndex, day) {
+            const d = new Date(year, monthIndex, day);
+            return DAYS_ID[d.getDay()] || "";
+        }
+
+        function makeDateKey(year, monthIndex, day) {
+            const m = String(monthIndex + 1).padStart(2, "0");
+            const d = String(day).padStart(2, "0");
+            return `${year}-${m}-${d}`;
+        }
+
+        function getIndoDateTimeInfo() {
+            const now = new Date();
+            try {
+                const parts = new Intl.DateTimeFormat("en-CA", {
+                    timeZone: "Asia/Makassar",
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false
+                }).formatToParts(now);
+                const get = (t) => parseInt(parts.find(p => p.type === t)?.value || "0", 10);
+                return {
+                    year: get("year"),
+                    month: get("month") - 1,
+                    day: get("day"),
+                    hour: get("hour") === 24 ? 0 : get("hour"),
+                    minute: get("minute")
+                };
+            } catch (e) {
+                return {
+                    year: now.getFullYear(),
+                    month: now.getMonth(),
+                    day: now.getDate(),
+                    hour: now.getHours(),
+                    minute: now.getMinutes()
+                };
+            }
+        }
+
+        function isBeforeAttendanceOpen(targetYear, targetMonth, targetDay) {
+            const cur = getIndoDateTimeInfo();
+            const targetDateNum = targetYear * 10000 + (targetMonth + 1) * 100 + targetDay;
+            const currentDateNum = cur.year * 10000 + (cur.month + 1) * 100 + cur.day;
+
+            if (targetDateNum > currentDateNum) {
+                return {
+                    blocked: true,
+                    reason: `Absensi untuk tanggal ${targetDay} ${MONTHS_ID[targetMonth]} ${targetYear} belum dibuka. Hanya bisa diisi mulai hari H pukul 07:00 WITA.`
+                };
+            }
+            if (targetDateNum === currentDateNum && cur.hour < 7) {
+                return {
+                    blocked: true,
+                    reason: `Absensi hari ini belum dibuka. Silakan isi absen mulai pukul 07:00 WITA (sekarang pukul ${String(cur.hour).padStart(2, "0")}:${String(cur.minute).padStart(2, "0")} WITA).`
+                };
+            }
+            return { blocked: false, reason: "" };
+        }
+
+        function getCurrentIndoTimeStr() {
+            try {
+                const parts = new Intl.DateTimeFormat("id-ID", {
+                    timeZone: "Asia/Makassar",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false
+                }).formatToParts(new Date());
+                const h = parts.find(p => p.type === "hour")?.value || "07";
+                const m = parts.find(p => p.type === "minute")?.value || "00";
+                return `${h.padStart(2, "0")}:${m.padStart(2, "0")}`;
+            } catch (e) {
+                const now = new Date();
+                return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+            }
+        }
+
+        function startLiveIndoClock() {
+            const el = document.getElementById("live-indo-clock");
+            const updateClock = () => {
+                if (el) el.textContent = `🕒 WITA ${getCurrentIndoTimeStr()}`;
+            };
+            updateClock();
+            setInterval(updateClock, 15000);
+        }
+
+        window.formatIndoTimeInput = function (input) {
+            if (!input) return "";
+            let val = input.value.trim().replace(/[^0-9:]/g, "");
+            if (!val) {
+                input.value = "";
+                return "";
+            }
+            if (!val.includes(":")) {
+                if (val.length === 1 || val.length === 2) {
+                    val = val.padStart(2, "0") + ":00";
+                } else if (val.length === 3) {
+                    val = "0" + val[0] + ":" + val.slice(1);
+                } else {
+                    val = val.slice(0, 2) + ":" + val.slice(2, 4);
+                }
+            }
+            const [rawH, rawM] = val.split(":");
+            let h = Math.min(23, Math.max(0, parseInt(rawH || "0", 10) || 0));
+            let m = Math.min(59, Math.max(0, parseInt(rawM || "0", 10) || 0));
+            const formatted = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+            input.value = formatted;
+            return formatted;
+        };
+
+        window.fillQuickTime = function (id) {
+            const el = document.getElementById(id);
+            if (el) el.value = getCurrentIndoTimeStr();
+        };
+
+        function populateMonthSelect(selectEl, selectedMonth) {
+            if (!selectEl) return;
+            selectEl.innerHTML = MONTHS_ID.map((m, idx) =>
+                `<option value="${idx}" ${idx === selectedMonth ? "selected" : ""}>${m}</option>`
+            ).join("");
+        }
+
+        function populateQuickDaySelect(year, monthIndex, preferredDay) {
+            const daySelect = document.getElementById("quick-day");
+            if (!daySelect) return;
+            const totalDays = getDaysInMonth(year, monthIndex);
+            const activeDay = Math.min(preferredDay || 1, totalDays);
+            let html = "";
+            for (let d = 1; d <= totalDays; d++) {
+                html += `<option value="${d}" ${d === activeDay ? "selected" : ""}>${d}</option>`;
+            }
+            daySelect.innerHTML = html;
+            updateQuickAutoDay();
+        }
+
+        window.updateQuickAutoDay = function () {
+            const day = parseInt(document.getElementById("quick-day").value, 10) || 1;
+            const month = parseInt(document.getElementById("quick-month").value, 10) || 0;
+            const year = parseInt(document.getElementById("quick-year").value, 10) || new Date().getFullYear();
+            document.getElementById("quick-dayname").value = getDayNameID(year, month, day);
+        };
+
+        window.onQuickPeriodChange = function () {
+            const currentDay = parseInt(document.getElementById("quick-day").value, 10) || 1;
+            const month = parseInt(document.getElementById("quick-month").value, 10) || 0;
+            const year = parseInt(document.getElementById("quick-year").value, 10) || new Date().getFullYear();
+            populateQuickDaySelect(year, month, currentDay);
+
+            document.getElementById("teacher-month-select").value = month;
+            document.getElementById("teacher-year-input").value = year;
+            document.getElementById("admin-month-select").value = month;
+            document.getElementById("admin-year-input").value = year;
+            updateAdminSignatureBlock();
+        };
+
+        function applySchoolBranding() {
+            const sName = state.settings.schoolName || "SD ISLAM HIDAYATULLAH";
+            const sAddr = state.settings.schoolAddr || "";
+            document.getElementById("nav-school-name").textContent = `${sName.toUpperCase()} MARTAPURA`;
+            document.getElementById("cover-school-title").textContent = sName.toUpperCase();
+            document.getElementById("cover-school-addr").textContent = sAddr;
+            document.querySelectorAll(".admin-school-title").forEach(el => el.textContent = sName.toUpperCase());
+            document.querySelectorAll(".admin-school-addr").forEach(el => el.textContent = sAddr);
+            document.getElementById("sign-left-title").textContent = `Kepala ${sName}`;
+            document.getElementById("sign-principal-input").value = state.settings.principalName || "";
+            applyCustomLogos();
+        }
+
+        function applyCustomLogos() {
+            const leftSrc = state.settings.customLogoLeft;
+            const rightSrc = state.settings.customLogoRight;
+
+            document.querySelectorAll('img[data-logo-side="left"]').forEach(img => {
+                if (leftSrc) {
+                    img.dataset.custom = "1";
+                    img.src = leftSrc;
+                    img.style.display = "block";
+                    if (img.nextElementSibling && img.nextElementSibling.tagName === "svg") {
+                        img.nextElementSibling.style.display = "none";
+                    }
+                } else {
+                    delete img.dataset.custom;
+                    img.src = "image_24d946.png";
+                    img.style.display = "block";
+                    if (img.nextElementSibling && img.nextElementSibling.tagName === "svg") {
+                        img.nextElementSibling.style.display = "none";
+                    }
+                }
+            });
+
+            document.querySelectorAll('img[data-logo-side="right"]').forEach(img => {
+                if (rightSrc) {
+                    img.dataset.custom = "1";
+                    img.src = rightSrc;
+                    img.style.display = "block";
+                    if (img.nextElementSibling && img.nextElementSibling.tagName === "svg") {
+                        img.nextElementSibling.style.display = "none";
+                    }
+                } else {
+                    delete img.dataset.custom;
+                    img.src = "image_24d981.png";
+                    img.style.display = "block";
+                    if (img.nextElementSibling && img.nextElementSibling.tagName === "svg") {
+                        img.nextElementSibling.style.display = "none";
+                    }
+                }
+            });
+        }
+
+        window.triggerManualLogoUpload = function (side) {
+            pendingLogoSide = side;
+            const input = document.getElementById("manual-logo-file-input");
+            if (!input) return;
+            input.value = "";
+            input.click();
+        };
+
+        window.handleManualLogoFile = function (event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const imgObj = new Image();
+                imgObj.onload = function () {
+                    const maxDim = 420;
+                    let w = imgObj.width;
+                    let h = imgObj.height;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) {
+                            h = Math.round((h * maxDim) / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round((w * maxDim) / h);
+                            h = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement("canvas");
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(imgObj, 0, 0, w, h);
+                    const dataUrl = canvas.toDataURL("image/png");
+
+                    if (pendingLogoSide === "left") {
+                        state.settings.customLogoLeft = dataUrl;
+                    } else {
+                        state.settings.customLogoRight = dataUrl;
+                    }
+                    saveState();
+                    applyCustomLogos();
+                    if (!document.getElementById("view-admin").classList.contains("hidden")) {
+                        renderAdminDashboard();
+                    }
+                    showToast(`✅ Logo ${pendingLogoSide === "left" ? "Kiri" : "Kanan"} berhasil dipasang!`);
+                };
+                imgObj.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.resetManualLogos = function () {
+            state.settings.customLogoLeft = "";
+            state.settings.customLogoRight = "";
+            saveState();
+            applyCustomLogos();
+            if (!document.getElementById("view-admin").classList.contains("hidden")) {
+                renderAdminDashboard();
+            }
+            showToast("↺ Logo dikembalikan ke bawaan.");
+        };
+
+        function updateCoverIdentityBadge() {
+            const badge = document.getElementById("cover-identity-badge");
+            if (!badge) return;
+            const nameVal = (state.coverIdentity.name || "").trim();
+            const roleVal = (state.coverIdentity.role || "").trim();
+            if (nameVal && roleVal) {
+                badge.textContent = `DAFTAR HADIR: ${nameVal.toUpperCase()} (${roleVal.toUpperCase()})`;
+            } else if (nameVal) {
+                badge.textContent = `DAFTAR HADIR: ${nameVal.toUpperCase()}`;
+            } else {
+                badge.textContent = "DAFTAR HADIR GURU & TENAGA PENDIDIK";
+            }
+        }
+
+        window.syncCoverIdentityToAdmin = function () {
+            const nameVal = document.getElementById("quick-name").value.trim();
+            const roleVal = document.getElementById("quick-role").value.trim();
+            state.coverIdentity.name = nameVal;
+            state.coverIdentity.role = roleVal;
+            saveState();
+            updateCoverIdentityBadge();
+            updateAdminSignatureBlock();
+        };
+
+        function findOrCreateTeacher(name, role) {
+            const cleanName = name.trim();
+            const cleanRole = role.trim() || "Guru / Tenaga Pendidik";
+            let teacher = state.teachers.find(t => t.name.toLowerCase() === cleanName.toLowerCase());
+            if (!teacher) {
+                teacher = {
+                    id: "t_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+                    name: cleanName,
+                    role: cleanRole
+                };
+                state.teachers.push(teacher);
+            } else if (role.trim()) {
+                teacher.role = cleanRole;
+            }
+            return teacher;
+        }
+
+        function setRecord(teacherId, dateKey, patch) {
+            if (!state.records[teacherId]) state.records[teacherId] = {};
+            const existing = state.records[teacherId][dateKey] || {
+                timeIn: "",
+                timeOut: "",
+                status: "",
+                note: ""
+            };
+            state.records[teacherId][dateKey] = { ...existing, ...patch };
+        }
+
+        window.submitQuickAttendance = function (e) {
+            e.preventDefault();
+            const name = document.getElementById("quick-name").value.trim();
+            const role = document.getElementById("quick-role").value.trim();
+            if (!name || !role) {
+                showToast("Nama dan Jabatan wajib diisi!");
+                return;
+            }
+
+            const day = parseInt(document.getElementById("quick-day").value, 10);
+            const month = parseInt(document.getElementById("quick-month").value, 10);
+            const year = parseInt(document.getElementById("quick-year").value, 10);
+
+            const checkOpen = isBeforeAttendanceOpen(year, month, day);
+            if (checkOpen.blocked) {
+                alert("⏰ " + checkOpen.reason);
+                showToast("⏰ " + checkOpen.reason);
+                return;
+            }
+            const timeIn = formatIndoTimeInput(document.getElementById("quick-in"));
+            const timeOut = formatIndoTimeInput(document.getElementById("quick-out"));
+            const status = document.getElementById("quick-status").value;
+            const note = document.getElementById("quick-note").value.trim();
+
+            state.coverIdentity = { name, role };
+            updateCoverIdentityBadge();
+
+            const teacher = findOrCreateTeacher(name, role);
+            const dateKey = makeDateKey(year, month, day);
+            setRecord(teacher.id, dateKey, { timeIn, timeOut, status, note });
+
+            state.quickLogs = state.quickLogs.filter(
+                log => !(log.teacherId === teacher.id && log.dateKey === dateKey)
+            );
+            state.quickLogs.unshift({
+                id: "log_" + Date.now(),
+                teacherId: teacher.id,
+                name: teacher.name,
+                role: teacher.role,
+                dateKey,
+                day,
+                month,
+                year,
+                dayName: getDayNameID(year, month, day)
+            });
+            if (state.quickLogs.length > 25) state.quickLogs.length = 25;
+
+            saveState();
+            refreshTeacherDropdowns(teacher.id);
+            renderQuickRecentList();
+            renderTeacherSheet();
+            updateAdminSignatureBlock();
+            showToast(`✅ Kehadiran ${teacher.name} (${day} ${MONTHS_ID[month]} ${year}) tersimpan!`);
+        };
+
+        function renderQuickRecentList() {
+            const container = document.getElementById("quick-recent-list");
+            if (!container) return;
+            if (!state.quickLogs.length) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">Belum ada riwayat absen yang dicatat.</p>`;
+                return;
+            }
+
+            container.innerHTML = state.quickLogs.map(log => {
+                const teacher = state.teachers.find(t => t.id === log.teacherId);
+                if (!teacher) return "";
+                const rec = (state.records[log.teacherId] && state.records[log.teacherId][log.dateKey]) || {};
+                return `
+                    <div class="p-3.5 rounded-2xl bg-blue-50/60 border border-blue-200/80 flex flex-wrap items-center justify-between gap-3">
+                        <div class="min-w-[180px]">
+                            <p class="text-xs sm:text-sm font-extrabold text-blue-950">${escapeHtml(teacher.name)}</p>
+                            <p class="text-[11px] text-slate-600">${escapeHtml(teacher.role)} • <strong>${escapeHtml(log.dayName)}, ${log.day} ${MONTHS_ID[log.month]} ${log.year}</strong> (${escapeHtml(rec.status || "Hadir")})</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div class="flex items-center gap-1 bg-white px-2.5 py-1 rounded-xl border border-blue-200">
+                                <span class="text-[11px] font-bold text-slate-500">Datang:</span>
+                                <input type="text" inputmode="numeric" maxlength="5" value="${escapeHtml(rec.timeIn || "")}" placeholder="07:00"
+                                    onchange="updateDirectRecordTime('${log.teacherId}', '${log.dateKey}', 'timeIn', this)"
+                                    class="w-14 text-xs font-extrabold text-blue-950 text-center focus:outline-none">
+                            </div>
+                            <div class="flex items-center gap-1 bg-white px-2.5 py-1 rounded-xl border border-blue-200">
+                                <span class="text-[11px] font-bold text-slate-500">Pulang:</span>
+                                <input type="text" inputmode="numeric" maxlength="5" value="${escapeHtml(rec.timeOut || "")}" placeholder="14:00"
+                                    onchange="updateDirectRecordTime('${log.teacherId}', '${log.dateKey}', 'timeOut', this)"
+                                    class="w-14 text-xs font-extrabold text-blue-950 text-center focus:outline-none">
+                            </div>
+                            <button type="button" onclick="loadLogToQuickForm('${log.teacherId}', '${log.dateKey}', ${log.day}, ${log.month}, ${log.year})" class="px-2.5 py-1.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-[11px] font-bold">
+                                ✏️ Edit
+                            </button>
+                            <button type="button" onclick="confirmDeleteQuickLog('${log.id}', '${log.teacherId}', '${log.dateKey}')" class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[11px] font-bold transition">
+                                🗑️ Hapus Riwayat
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        window.confirmDeleteQuickLog = function (logId, teacherId, dateKey) {
+            const teacher = state.teachers.find(t => t.id === teacherId);
+            const log = state.quickLogs.find(l => l.id === logId);
+            pendingDeleteTeacherId = null;
+            pendingDeleteLog = { logId, teacherId, dateKey };
+
+            const labelNama = teacher ? teacher.name : (log ? log.name : "Guru");
+            const labelTanggal = log ? `${log.day} ${MONTHS_ID[log.month]} ${log.year}` : dateKey;
+            document.getElementById("delete-modal-desc").textContent =
+                `Riwayat absen atas nama "${labelNama}" pada tanggal ${labelTanggal} akan dihapus. Lanjutkan?`;
+            document.getElementById("delete-modal").classList.remove("hidden");
+        };
+
+        window.updateDirectRecordTime = function (teacherId, dateKey, field, inputEl) {
+            const formatted = formatIndoTimeInput(inputEl);
+            setRecord(teacherId, dateKey, { [field]: formatted });
+            saveState();
+            renderTeacherSheet();
+            if (!document.getElementById("view-admin").classList.contains("hidden")) {
+                renderAdminDashboard();
+            }
+            showToast(`🕒 Jam ${field === "timeIn" ? "Datang" : "Pulang"} diperbarui (${formatted || "-"}).`);
+        };
+
+        window.loadLogToQuickForm = function (teacherId, dateKey, day, month, year) {
+            const teacher = state.teachers.find(t => t.id === teacherId);
+            if (!teacher) return;
+            const rec = (state.records[teacherId] && state.records[teacherId][dateKey]) || {};
+
+            document.getElementById("quick-name").value = teacher.name;
+            document.getElementById("quick-role").value = teacher.role;
+            document.getElementById("quick-month").value = month;
+            document.getElementById("quick-year").value = year;
+            populateQuickDaySelect(year, month, day);
+            document.getElementById("quick-in").value = rec.timeIn || "";
+            document.getElementById("quick-out").value = rec.timeOut || "";
+            document.getElementById("quick-status").value = rec.status || "Hadir";
+            document.getElementById("quick-note").value = rec.note || "";
+
+            syncCoverIdentityToAdmin();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            showToast(`✏️ Data ${teacher.name} (${day} ${MONTHS_ID[month]}) siap diedit.`);
+        };
+
+        function refreshTeacherDropdowns(preferredId) {
+            const sheetSel = document.getElementById("teacher-sheet-select");
+            const adminSel = document.getElementById("admin-teacher-filter");
+            const prevSheet = preferredId || (sheetSel ? sheetSel.value : "");
+            const prevAdmin = adminSel ? adminSel.value : "ALL";
+
+            if (sheetSel) {
+                if (!state.teachers.length) {
+                    sheetSel.innerHTML = `<option value="">-- Belum ada data guru --</option>`;
+                } else {
+                    sheetSel.innerHTML = state.teachers.map(t =>
+                        `<option value="${t.id}" ${t.id === prevSheet ? "selected" : ""}>${escapeHtml(t.name)} (${escapeHtml(t.role)})</option>`
+                    ).join("");
+                }
+            }
+
+            if (adminSel) {
+                const opts = [`<option value="ALL">Semua Guru & Tendik (${state.teachers.length})</option>`];
+                state.teachers.forEach(t => {
+                    opts.push(`<option value="${t.id}" ${t.id === prevAdmin ? "selected" : ""}>${escapeHtml(t.name)} (${escapeHtml(t.role)})</option>`);
+                });
+                adminSel.innerHTML = opts.join("");
+            }
+        }
+
+        window.onSelectTeacherSheet = function () {
+            renderTeacherSheet();
+        };
+
+        function renderTeacherSheet() {
+            const tbody = document.getElementById("teacher-sheet-tbody");
+            const titleEl = document.getElementById("sheet-teacher-title");
+            const subEl = document.getElementById("sheet-teacher-subtitle");
+            if (!tbody) return;
+
+            const teacherId = document.getElementById("teacher-sheet-select")?.value;
+            const month = parseInt(document.getElementById("teacher-month-select")?.value, 10) || 0;
+            const year = parseInt(document.getElementById("teacher-year-input")?.value, 10) || new Date().getFullYear();
+            const teacher = state.teachers.find(t => t.id === teacherId);
+
+            if (!teacher) {
+                if (titleEl) titleEl.textContent = "Lembar Kehadiran Bulanan";
+                if (subEl) subEl.textContent = "Silakan isi absen terlebih dahulu pada Slide 1";
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 px-4 text-center text-slate-500 text-xs">Belum ada data guru atau tenaga pendidik.</td></tr>`;
+                return;
+            }
+
+            if (titleEl) titleEl.textContent = `${teacher.name} — ${teacher.role}`;
+            if (subEl) subEl.textContent = `Bulan ${MONTHS_ID[month]} ${year}`;
+
+            const totalDays = getDaysInMonth(year, month);
+            const tRecords = state.records[teacher.id] || {};
+            let rowsHtml = "";
+
+            for (let d = 1; d <= totalDays; d++) {
+                const dateKey = makeDateKey(year, month, d);
+                const dayName = getDayNameID(year, month, d);
+                const isSunday = dayName === "Minggu";
+                const rec = tRecords[dateKey] || { timeIn: "", timeOut: "", status: "", note: "" };
+
+                rowsHtml += `
+                    <tr class="${isSunday ? "bg-rose-50/60" : "hover:bg-blue-50/40"}">
+                        <td class="py-2 px-3 font-bold ${isSunday ? "text-rose-700" : "text-slate-700"}">${dayName}</td>
+                        <td class="py-2 px-3 font-semibold text-slate-800">${d} ${MONTHS_ID[month]} ${year}</td>
+                        <td class="py-2 px-3 text-center">
+                            <input type="text" inputmode="numeric" maxlength="5" value="${escapeHtml(rec.timeIn || "")}" placeholder="--:--"
+                                onchange="updateSheetCell('${teacher.id}', '${dateKey}', 'timeIn', this)"
+                                class="w-16 px-1.5 py-1 rounded-lg border border-slate-200 text-center text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-600">
+                        </td>
+                        <td class="py-2 px-3 text-center">
+                            <input type="text" inputmode="numeric" maxlength="5" value="${escapeHtml(rec.timeOut || "")}" placeholder="--:--"
+                                onchange="updateSheetCell('${teacher.id}', '${dateKey}', 'timeOut', this)"
+                                class="w-16 px-1.5 py-1 rounded-lg border border-slate-200 text-center text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-600">
+                        </td>
+                        <td class="py-2 px-3">
+                            <select onchange="updateSheetCell('${teacher.id}', '${dateKey}', 'status', this)" class="px-2 py-1 rounded-lg border border-slate-200 text-xs font-bold bg-white">
+                                <option value="" ${!rec.status ? "selected" : ""}>-</option>
+                                <option value="Hadir" ${rec.status === "Hadir" ? "selected" : ""}>Hadir</option>
+                                <option value="Izin" ${rec.status === "Izin" ? "selected" : ""}>Izin</option>
+                                <option value="Sakit" ${rec.status === "Sakit" ? "selected" : ""}>Sakit</option>
+                                <option value="Dinas Luar" ${rec.status === "Dinas Luar" ? "selected" : ""}>Dinas Luar</option>
+                                <option value="Libur" ${rec.status === "Libur" ? "selected" : ""}>Libur</option>
+                            </select>
+                        </td>
+                        <td class="py-2 px-3">
+                            <input type="text" value="${escapeHtml(rec.note || "")}" placeholder="Keterangan..."
+                                onchange="updateSheetCell('${teacher.id}', '${dateKey}', 'note', this)"
+                                class="w-full min-w-[120px] px-2 py-1 rounded-lg border border-slate-200 text-xs">
+                        </td>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = rowsHtml;
+        }
+
+        window.updateSheetCell = function (teacherId, dateKey, field, el) {
+            const [yStr, mStr, dStr] = dateKey.split("-");
+            const checkOpen = isBeforeAttendanceOpen(parseInt(yStr, 10), parseInt(mStr, 10) - 1, parseInt(dStr, 10));
+            if (checkOpen.blocked) {
+                alert("⏰ " + checkOpen.reason);
+                showToast("⏰ " + checkOpen.reason);
+                renderTeacherSheet();
+                return;
+            }
+            let val = el.value;
+            if (field === "timeIn" || field === "timeOut") {
+                val = formatIndoTimeInput(el);
+            }
+            setRecord(teacherId, dateKey, { [field]: val });
+            saveState();
+            renderQuickRecentList();
+            if (!document.getElementById("view-admin").classList.contains("hidden")) {
+                renderAdminDashboard();
+            }
+        };
+
+        window.switchGuruTab = function (tab) {
+            const quickPanel = document.getElementById("guru-quick-panel");
+            const sheetPanel = document.getElementById("guru-sheet-panel");
+            const quickBtn = document.getElementById("tab-quick-btn");
+            const sheetBtn = document.getElementById("tab-sheet-btn");
+
+            if (tab === "quick") {
+                quickPanel.classList.remove("hidden");
+                sheetPanel.classList.add("hidden");
+                quickBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-blue-800 text-white shadow";
+                sheetBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200";
+            } else {
+                quickPanel.classList.add("hidden");
+                sheetPanel.classList.remove("hidden");
+                sheetBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-blue-800 text-white shadow";
+                quickBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200";
+                renderTeacherSheet();
+            }
+        };
+
+        window.switchMainView = function (view) {
+            const viewGuru = document.getElementById("view-guru");
+            const viewAdmin = document.getElementById("view-admin");
+            const btnGuru = document.getElementById("btn-nav-guru");
+            const btnAdmin = document.getElementById("btn-nav-admin");
+
+            if (view === "guru") {
+                viewGuru.classList.remove("hidden");
+                viewAdmin.classList.add("hidden");
+                btnGuru.className = "px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-blue-900 shadow transition";
+                btnAdmin.className = "px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-blue-700/70 hover:bg-blue-600 text-white border border-blue-400/30 transition";
+            } else {
+                viewGuru.classList.add("hidden");
+                viewAdmin.classList.remove("hidden");
+                btnAdmin.className = "px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-blue-900 shadow transition";
+                btnGuru.className = "px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-blue-700/70 hover:bg-blue-600 text-white border border-blue-400/30 transition";
+                renderAdminDashboard();
+                populateAdminManageTab();
+            }
+        };
+
+        window.openAdminAccess = function () {
+            if (isAdminUnlocked) {
+                switchMainView("admin");
+                return;
+            }
+            const pinInput = document.getElementById("admin-pin-input");
+            const errBox = document.getElementById("pin-error-text");
+            if (pinInput) {
+                pinInput.value = "";
+                pinInput.type = "password";
+            }
+            if (errBox) errBox.classList.add("hidden");
+            document.getElementById("eye-icon-open")?.classList.remove("hidden");
+            document.getElementById("eye-icon-closed")?.classList.add("hidden");
+            document.getElementById("pin-modal").classList.remove("hidden");
+            setTimeout(() => pinInput?.focus(), 60);
+        };
+
+        window.closePinModal = function () {
+            document.getElementById("pin-modal").classList.add("hidden");
+        };
+
+        window.toggleAdminPinVisibility = function (forceShow) {
+            const input = document.getElementById("admin-pin-input");
+            const openEye = document.getElementById("eye-icon-open");
+            const closedEye = document.getElementById("eye-icon-closed");
+            if (!input) return;
+            const shouldShow = typeof forceShow === "boolean" ? forceShow : input.type === "password";
+            input.type = shouldShow ? "text" : "password";
+            if (openEye && closedEye) {
+                openEye.classList.toggle("hidden", shouldShow);
+                closedEye.classList.toggle("hidden", !shouldShow);
+            }
+        };
+
+        window.verifyAdminPin = function () {
+            const val = (document.getElementById("admin-pin-input")?.value || "").trim();
+            if (val === "Tahura*1028") {
+                isAdminUnlocked = true;
+                closePinModal();
+                switchMainView("admin");
+                showToast("🔓 Akses Laporan Admin dibuka.");
+            } else {
+                document.getElementById("pin-error-text")?.classList.remove("hidden");
+            }
+        };
+
+        window.switchAdminTab = function (tab) {
+            const rekapPanel = document.getElementById("admin-panel-rekap");
+            const managePanel = document.getElementById("admin-panel-manage");
+            const btnRekap = document.getElementById("admin-tab-rekap");
+            const btnManage = document.getElementById("admin-tab-manage");
+
+            if (tab === "rekap") {
+                rekapPanel.classList.remove("hidden");
+                managePanel.classList.add("hidden");
+                btnRekap.className = "flex-1 py-2 px-2.5 rounded-xl bg-blue-800 text-white font-bold text-xs";
+                btnManage.className = "flex-1 py-2 px-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 font-bold text-xs";
+                renderAdminDashboard();
+            } else {
+                rekapPanel.classList.add("hidden");
+                managePanel.classList.remove("hidden");
+                btnManage.className = "flex-1 py-2 px-2.5 rounded-xl bg-blue-800 text-white font-bold text-xs";
+                btnRekap.className = "flex-1 py-2 px-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 font-bold text-xs";
+                populateAdminManageTab();
+            }
+        };
+
+        window.onAdminPeriodChange = function () {
+            renderAdminDashboard();
+        };
+
+        window.updatePrincipalName = function (newName) {
+            state.settings.principalName = newName.trim() || "Kepala SD Islam Hidayatullah";
+            saveState();
+            applySchoolBranding();
+            renderAdminDashboard();
+            showToast("✅ Nama Kepala Sekolah diperbarui.");
+        };
+
+        function updateAdminSignatureBlock() {
+            const month = parseInt(document.getElementById("admin-month-select")?.value, 10) || 0;
+            const year = parseInt(document.getElementById("admin-year-input")?.value, 10) || new Date().getFullYear();
+            const lastDay = getDaysInMonth(year, month);
+
+            const dateEl = document.getElementById("sign-date-text");
+            if (dateEl) dateEl.textContent = `Martapura, ${lastDay} ${MONTHS_ID[month]} ${year}`;
+
+            const filterId = document.getElementById("admin-teacher-filter")?.value || "ALL";
+            const selectedTeacher = state.teachers.find(t => t.id === filterId);
+
+            const roleText = selectedTeacher
+                ? selectedTeacher.role
+                : (state.coverIdentity.role || "Guru / Tenaga Pendidik");
+            const nameText = selectedTeacher
+                ? selectedTeacher.name
+                : (state.coverIdentity.name || "........................................");
+
+            const roleEl = document.getElementById("sign-right-role");
+            const nameEl = document.getElementById("sign-right-name");
+            if (roleEl) roleEl.textContent = roleText;
+            if (nameEl) nameEl.textContent = nameText;
+        }
+
+        function countMonthlyStats(teacherId, year, monthIndex) {
+            const totalDays = getDaysInMonth(year, monthIndex);
+            const tRecords = state.records[teacherId] || {};
+            const stats = { Hadir: 0, Izin: 0, Sakit: 0, "Dinas Luar": 0, Libur: 0 };
+            for (let d = 1; d <= totalDays; d++) {
+                const rec = tRecords[makeDateKey(year, monthIndex, d)];
+                if (rec && rec.status && Object.prototype.hasOwnProperty.call(stats, rec.status)) {
+                    stats[rec.status]++;
+                }
+            }
+            return stats;
+        }
+
+        function renderAdminDashboard() {
+            const month = parseInt(document.getElementById("admin-month-select")?.value, 10) || 0;
+            const year = parseInt(document.getElementById("admin-year-input")?.value, 10) || new Date().getFullYear();
+            const filterId = document.getElementById("admin-teacher-filter")?.value || "ALL";
+
+            const subEl = document.getElementById("admin-monthly-subtitle");
+            if (subEl) subEl.textContent = `REKAPITULASI DAFTAR HADIR BULAN ${MONTHS_ID[month].toUpperCase()} ${year}`;
+
+            updateAdminSignatureBlock();
+
+            const summaryBody = document.getElementById("admin-summary-tbody");
+            const targetTeachers = filterId === "ALL"
+                ? state.teachers
+                : state.teachers.filter(t => t.id === filterId);
+
+            if (summaryBody) {
+                if (!targetTeachers.length) {
+                    summaryBody.innerHTML = `<tr><td colspan="9" class="py-6 px-4 text-center text-slate-500">Belum ada data kehadiran guru atau tenaga pendidik pada periode ini.</td></tr>`;
+                } else {
+                    summaryBody.innerHTML = targetTeachers.map((t, idx) => {
+                        const st = countMonthlyStats(t.id, year, month);
+                        return `
+                            <tr class="hover:bg-blue-50/40">
+                                <td class="border-r border-slate-200 py-2 px-2 text-center font-bold">${idx + 1}</td>
+                                <td class="border-r border-slate-200 py-2 px-3 font-extrabold text-slate-900">${escapeHtml(t.name)}</td>
+                                <td class="border-r border-slate-200 py-2 px-3 text-slate-700">${escapeHtml(t.role)}</td>
+                                <td class="border-r border-slate-200 py-2 px-2 text-center font-bold text-emerald-700">${st.Hadir}</td>
+                                <td class="border-r border-slate-200 py-2 px-2 text-center font-bold text-amber-700">${st.Izin}</td>
+                                <td class="border-r border-slate-200 py-2 px-2 text-center font-bold text-sky-700">${st.Sakit}</td>
+                                <td class="border-r border-slate-200 py-2 px-2 text-center font-bold text-indigo-700">${st["Dinas Luar"]}</td>
+                                <td class="border-r border-slate-200 py-2 px-2 text-center font-bold text-rose-700">${st.Libur}</td>
+                                <td class="no-print py-2 px-2 text-center">
+                                    <button type="button" onclick="confirmDeleteTeacher('${t.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-[11px]">
+                                        🗑️ Hapus
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join("");
+                }
+            }
+
+            // Render Lembar Harian Per Guru sesuai contoh dokumen & 6 kolom (No, Tanggal, Hari, Jam Kedatangan, Jam Kepulangan, Keterangan)
+            const perTeacherContainer = document.getElementById("admin-per-teacher-container");
+            if (!perTeacherContainer) return;
+
+            if (!targetTeachers.length) {
+                perTeacherContainer.innerHTML = "";
+                return;
+            }
+
+            const totalDays = getDaysInMonth(year, month);
+            const lastDay = totalDays;
+            const sName = state.settings.schoolName || "SD ISLAM HIDAYATULLAH";
+            const sAddr = state.settings.schoolAddr || "Komplek Ponpes Hidayatullah Taman Hudaya Jl. Irigasi Teluk Sanggar Bincau Martapura Kabupaten Banjar 70651";
+            const principalName = state.settings.principalName || "Kepala SD Islam Hidayatullah";
+            const leftLogoSrc = state.settings.customLogoLeft || "image_24d946.png";
+            const rightLogoSrc = state.settings.customLogoRight || "image_24d981.png";
+
+            perTeacherContainer.innerHTML = targetTeachers.map((teacher, tIdx) => {
+                const tRecords = state.records[teacher.id] || {};
+                const stats = countMonthlyStats(teacher.id, year, month);
+                let dailyRows = "";
+
+                for (let d = 1; d <= totalDays; d++) {
+                    const dateKey = makeDateKey(year, month, d);
+                    const dayName = getDayNameID(year, month, d);
+                    const isSunday = dayName === "Minggu";
+                    const rec = tRecords[dateKey] || { timeIn: "", timeOut: "", status: "", note: "" };
+
+                    let ketGabungan = "";
+                    if (rec.status && rec.note) {
+                        ketGabungan = `${rec.status} - ${rec.note}`;
+                    } else if (rec.status) {
+                        ketGabungan = rec.status;
+                    } else if (rec.note) {
+                        ketGabungan = rec.note;
+                    }
+
+                    dailyRows += `
+                        <tr class="${isSunday ? "bg-rose-50/70 text-rose-800" : ""}">
+                            <td class="border border-slate-300 py-1.5 px-2 text-center font-semibold">${d}</td>
+                            <td class="border border-slate-300 py-1.5 px-2.5 font-medium">${d} ${MONTHS_ID[month]} ${year}</td>
+                            <td class="border border-slate-300 py-1.5 px-2.5 font-semibold">${dayName}</td>
+                            <td class="border border-slate-300 py-1.5 px-2 text-center font-bold">${escapeHtml(rec.timeIn || "-")}</td>
+                            <td class="border border-slate-300 py-1.5 px-2 text-center font-bold">${escapeHtml(rec.timeOut || "-")}</td>
+                            <td class="border border-slate-300 py-1.5 px-2.5">${escapeHtml(ketGabungan)}</td>
+                        </tr>
+                    `;
+                }
+
+                return `
+                    <section class="print-sheet bg-white rounded-3xl shadow-md border border-blue-200/80 p-5 sm:p-8">
+                        <!-- Kop Surat -->
+                        <div class="flex items-center justify-between gap-4 border-b-2 border-blue-950 pb-4 mb-5">
+                            <div class="w-16 h-20 sm:w-20 sm:h-24 shrink-0 flex items-center justify-center">
+                                <img src="${escapeHtml(leftLogoSrc)}" alt="Logo Kabupaten Banjar" onerror="this.src='image_24d1c3.png'" class="w-full h-full object-contain">
+                            </div>
+                            <div class="text-center flex-1 px-2">
+                                <p class="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-blue-800">Yayasan Pondok Pesantren Hidayatullah Martapura</p>
+                                <h3 class="text-lg sm:text-2xl font-extrabold text-blue-950 tracking-tight mt-0.5">${escapeHtml(sName.toUpperCase())}</h3>
+                                <p class="text-[11px] sm:text-xs text-slate-600 font-medium mt-0.5">${escapeHtml(sAddr)}</p>
+                            </div>
+                            <div class="w-16 h-20 sm:w-20 sm:h-24 shrink-0 flex items-center justify-center overflow-hidden">
+                                <img src="${escapeHtml(rightLogoSrc)}" alt="Logo SDI Hidayatullah Martapura" onerror="this.src='image_24d1e2.png'" class="w-full h-full object-contain">
+                            </div>
+                        </div>
+
+                        <!-- Judul & Identitas Lembar -->
+                        <div class="flex flex-wrap items-start justify-between gap-2 mb-4">
+                            <div class="space-y-1 text-xs sm:text-sm">
+                                <h4 class="font-extrabold text-blue-950 uppercase tracking-wide text-sm sm:text-base mb-1.5">DAFTAR HADIR GURU & TENAGA PENDIDIK</h4>
+                                <p><span class="inline-block w-28 font-semibold text-slate-600">Nama</span>: <strong class="text-slate-950">${escapeHtml(teacher.name)}</strong></p>
+                                <p><span class="inline-block w-28 font-semibold text-slate-600">Jabatan</span>: <strong class="text-slate-900">${escapeHtml(teacher.role)}</strong></p>
+                                <p><span class="inline-block w-28 font-semibold text-slate-600">Bulan / Tahun</span>: <strong class="text-slate-900">${MONTHS_ID[month]} ${year}</strong></p>
+                            </div>
+                            <span class="text-[11px] font-bold text-slate-500">Hal: ${tIdx + 1}/${targetTeachers.length}</span>
+                        </div>
+
+                        <!-- Tabel 6 Kolom: No, Tanggal, Hari, Jam Kedatangan, Jam Kepulangan, Keterangan -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-blue-950 text-white">
+                                        <th class="border border-blue-900 py-2 px-2 text-center w-10">No</th>
+                                        <th class="border border-blue-900 py-2 px-2.5 text-left w-36">Tanggal</th>
+                                        <th class="border border-blue-900 py-2 px-2.5 text-left w-24">Hari</th>
+                                        <th class="border border-blue-900 py-2 px-2 text-center w-28">Jam Kedatangan</th>
+                                        <th class="border border-blue-900 py-2 px-2 text-center w-28">Jam Kepulangan</th>
+                                        <th class="border border-blue-900 py-2 px-2.5 text-left">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${dailyRows}</tbody>
+                            </table>
+                        </div>
+
+                        <!-- Kotak Rekapitulasi Bulanan -->
+                        <div class="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-300 flex flex-wrap items-center justify-between gap-3 text-xs">
+                            <span class="font-extrabold text-blue-950 uppercase">Rekapitulasi Bulan ${MONTHS_ID[month]} ${year}:</span>
+                            <div class="flex flex-wrap gap-3 font-bold">
+                                <span class="text-emerald-700">Hadir: ${stats.Hadir}</span>
+                                <span class="text-amber-700">Izin: ${stats.Izin}</span>
+                                <span class="text-sky-700">Sakit: ${stats.Sakit}</span>
+                                <span class="text-indigo-700">Dinas Luar: ${stats["Dinas Luar"]}</span>
+                                <span class="text-rose-700">Libur: ${stats.Libur}</span>
+                            </div>
+                        </div>
+
+                        <!-- Tanda Tangan Sejajar Kiri & Kanan -->
+                        <div class="mt-8 pt-2 grid grid-cols-2 gap-8 text-xs sm:text-sm items-start">
+                            <div class="text-center flex flex-col items-center">
+                                <p class="text-slate-600 leading-snug">Mengetahui,</p>
+                                <p class="font-bold text-slate-900 mt-0.5 leading-snug">Kepala ${escapeHtml(sName)}</p>
+                                <div class="h-16 sm:h-20"></div>
+                                <p class="font-extrabold underline text-slate-950 py-1 leading-snug">${escapeHtml(principalName)}</p>
+                            </div>
+                            <div class="text-center flex flex-col items-center">
+                                <p class="text-slate-700 font-semibold leading-snug">Martapura, ${lastDay} ${MONTHS_ID[month]} ${year}</p>
+                                <p class="font-bold text-slate-900 mt-0.5 leading-snug">${escapeHtml(teacher.role)}</p>
+                                <div class="h-16 sm:h-20"></div>
+                                <p class="font-extrabold underline text-slate-950 py-1 leading-snug">${escapeHtml(teacher.name)}</p>
+                            </div>
+                        </div>
+                    </section>
+                `;
+            }).join("");
+        }
+
+        function populateAdminManageTab() {
+            const sNameEl = document.getElementById("setting-school-name");
+            const sAddrEl = document.getElementById("setting-school-addr");
+            const pNameEl = document.getElementById("setting-principal-name");
+            const pinEl = document.getElementById("setting-admin-pin");
+
+            if (sNameEl) sNameEl.value = state.settings.schoolName || "";
+            if (sAddrEl) sAddrEl.value = state.settings.schoolAddr || "";
+            if (pNameEl) pNameEl.value = state.settings.principalName || "";
+            if (pinEl) pinEl.value = "Tahura*1028";
+
+            const listEl = document.getElementById("admin-teacher-manage-list");
+            if (!listEl) return;
+
+            if (!state.teachers.length) {
+                listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200">Belum ada nama guru/tendik terdaftar.</p>`;
+                return;
+            }
+
+            listEl.innerHTML = state.teachers.map((t, i) => `
+                <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
+                    <div>
+                        <p class="text-xs sm:text-sm font-extrabold text-slate-900">${i + 1}. ${escapeHtml(t.name)}</p>
+                        <p class="text-[11px] text-slate-600">${escapeHtml(t.role)}</p>
+                    </div>
+                    <button type="button" onclick="confirmDeleteTeacher('${t.id}')" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs">
+                        🗑️ Hapus Nama
+                    </button>
+                </div>
+            `).join("");
+        }
+
+        window.saveSchoolSettings = function () {
+            const sName = document.getElementById("setting-school-name").value.trim() || "SD ISLAM HIDAYATULLAH";
+            const sAddr = document.getElementById("setting-school-addr").value.trim();
+            const pName = document.getElementById("setting-principal-name").value.trim() || "Kepala SD Islam Hidayatullah";
+
+            state.settings.schoolName = sName;
+            state.settings.schoolAddr = sAddr;
+            state.settings.principalName = pName;
+            state.settings.adminPin = "Tahura*1028";
+
+            saveState();
+            applySchoolBranding();
+            renderAdminDashboard();
+            showToast("💾 Pengaturan sekolah berhasil disimpan!");
+        };
+
+        window.adminAddTeacher = function (e) {
+            e.preventDefault();
+            const nameInput = document.getElementById("admin-new-name");
+            const roleInput = document.getElementById("admin-new-role");
+            const name = nameInput.value.trim();
+            const role = roleInput.value.trim();
+            if (!name || !role) return;
+
+            const teacher = findOrCreateTeacher(name, role);
+            saveState();
+            nameInput.value = "";
+            roleInput.value = "";
+            refreshTeacherDropdowns(teacher.id);
+            populateAdminManageTab();
+            renderAdminDashboard();
+            showToast(`✅ ${teacher.name} berhasil ditambahkan!`);
+        };
+
+        window.confirmDeleteTeacher = function (teacherId) {
+            const teacher = state.teachers.find(t => t.id === teacherId);
+            if (!teacher) return;
+            pendingDeleteLog = null;
+            pendingDeleteTeacherId = teacherId;
+            document.getElementById("delete-modal-desc").textContent =
+                `Data guru/tendik atas nama "${teacher.name}" beserta seluruh riwayat absensinya akan dihapus permanen. Lanjutkan?`;
+            document.getElementById("delete-modal").classList.remove("hidden");
+        };
+
+        window.closeDeleteModal = function () {
+            pendingDeleteTeacherId = null;
+            pendingDeleteLog = null;
+            document.getElementById("delete-modal").classList.add("hidden");
+        };
+
+        function executeConfirmedDelete() {
+            if (pendingDeleteLog) {
+                const { logId, teacherId, dateKey } = pendingDeleteLog;
+                if (state.records[teacherId] && state.records[teacherId][dateKey]) {
+                    delete state.records[teacherId][dateKey];
+                }
+                state.quickLogs = state.quickLogs.filter(l => l.id !== logId);
+                saveState();
+                closeDeleteModal();
+                renderQuickRecentList();
+                renderTeacherSheet();
+                if (!document.getElementById("view-admin").classList.contains("hidden")) {
+                    renderAdminDashboard();
+                }
+                showToast("🗑️ Riwayat absen berhasil dihapus.");
+                return;
+            }
+
+            if (pendingDeleteTeacherId) {
+                const id = pendingDeleteTeacherId;
+                state.teachers = state.teachers.filter(t => t.id !== id);
+                delete state.records[id];
+                state.quickLogs = state.quickLogs.filter(l => l.teacherId !== id);
+                if (state.coverIdentity.name && !state.teachers.some(t => t.name === state.coverIdentity.name)) {
+                    state.coverIdentity = { name: "", role: "" };
+                    updateCoverIdentityBadge();
+                }
+                saveState();
+                closeDeleteModal();
+                refreshTeacherDropdowns();
+                renderQuickRecentList();
+                renderTeacherSheet();
+                populateAdminManageTab();
+                renderAdminDashboard();
+                showToast("🗑️ Data nama berhasil dihapus.");
+            }
+        }
+
+        function initApp() {
+            const now = new Date();
+            const curMonth = now.getMonth();
+            const curYear = now.getFullYear();
+            const curDay = now.getDate();
+
+            populateMonthSelect(document.getElementById("quick-month"), curMonth);
+            populateMonthSelect(document.getElementById("teacher-month-select"), curMonth);
+            populateMonthSelect(document.getElementById("admin-month-select"), curMonth);
+
+            document.getElementById("quick-year").value = curYear;
+            document.getElementById("teacher-year-input").value = curYear;
+            document.getElementById("admin-year-input").value = curYear;
+
+            populateQuickDaySelect(curYear, curMonth, curDay);
+
+            if (state.coverIdentity.name) {
+                document.getElementById("quick-name").value = state.coverIdentity.name;
+            }
+            if (state.coverIdentity.role) {
+                document.getElementById("quick-role").value = state.coverIdentity.role;
+            }
+            updateCoverIdentityBadge();
+
+            document.getElementById("confirm-delete-btn")?.addEventListener("click", executeConfirmedDelete);
+
+            applySchoolBranding();
+            refreshTeacherDropdowns();
+            renderQuickRecentList();
+            renderTeacherSheet();
+            updateAdminSignatureBlock();
+            startLiveIndoClock();
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
