@@ -72,6 +72,9 @@
                 <button id="btn-nav-admin" onclick="openAdminAccess()" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-blue-700/70 hover:bg-blue-600 text-white border border-blue-400/30 transition">
                     📊 Laporan Admin
                 </button>
+                <button id="btn-nav-logout" onclick="logoutAll()" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-rose-600/90 hover:bg-rose-600 text-white border border-rose-300/30 transition">
+                    🚪 Keluar
+                </button>
             </div>
         </div>
     </header>
@@ -79,6 +82,37 @@
     <!-- Notifikasi Toast -->
     <div id="toast-box" class="no-print hidden fixed bottom-5 right-5 z-50 max-w-sm bg-blue-950 text-white px-4 py-3 rounded-2xl shadow-xl border border-blue-700 text-xs sm:text-sm font-semibold flex items-center gap-2.5 fade-in">
         <span id="toast-msg">Tersimpan</span>
+    </div>
+
+
+    <!-- Layar Login (Guru: nama + password | Admin: password) -->
+    <div id="login-overlay" class="no-print fixed inset-0 z-[60] bg-gradient-to-br from-blue-950 via-blue-900 to-blue-700 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl fade-in">
+            <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center text-2xl mx-auto mb-3">📋</div>
+            <h3 class="text-lg font-extrabold text-blue-950 text-center leading-tight">ABSENSI GURU & TENDIK</h3>
+            <p class="text-xs text-slate-500 text-center mt-0.5 mb-4">SD Islam Hidayatullah Martapura</p>
+
+            <div class="grid grid-cols-2 gap-1.5 p-1 bg-blue-50 rounded-2xl mb-4">
+                <button type="button" id="login-tab-guru" onclick="setLoginMode('guru')" class="py-2 rounded-xl text-xs font-extrabold bg-blue-800 text-white shadow">👩‍🏫 Masuk Guru</button>
+                <button type="button" id="login-tab-admin" onclick="setLoginMode('admin')" class="py-2 rounded-xl text-xs font-bold text-blue-900">🔐 Masuk Admin</button>
+            </div>
+
+            <form onsubmit="submitLogin(event)" class="space-y-3">
+                <div id="login-name-wrap">
+                    <label for="login-name" class="block text-xs font-extrabold text-blue-950 mb-1">Nama Lengkap</label>
+                    <input type="text" id="login-name" autocomplete="off" placeholder="Ketik nama Anda (gelar boleh tidak diketik)" class="w-full px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <div>
+                    <label for="login-pass" id="login-pass-label" class="block text-xs font-extrabold text-blue-950 mb-1">Password</label>
+                    <div class="relative">
+                        <input type="password" id="login-pass" autocomplete="off" placeholder="Masukkan password..." class="w-full pl-3.5 pr-16 py-2.5 rounded-xl border border-blue-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        <button type="button" onclick="toggleLoginPass()" id="login-pass-toggle" class="absolute inset-y-0 right-0 px-3 text-[11px] font-bold text-blue-800 hover:text-blue-950">Lihat</button>
+                    </div>
+                </div>
+                <div id="login-error" class="hidden p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-bold text-center"></div>
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-800 to-blue-600 hover:from-blue-900 hover:to-blue-700 text-white font-extrabold text-sm shadow">Masuk</button>
+            </form>
+        </div>
     </div>
 
     <!-- Modal Konfirmasi Hapus Data Nama -->
@@ -146,7 +180,7 @@
     <!-- ========================================================= -->
     <!-- VIEW 1: HALAMAN GURU (SLIDE 1 & LEMBAR BULANAN GURU)      -->
     <!-- ========================================================= -->
-    <main id="view-guru" class="max-w-5xl mx-auto px-4 pt-6 space-y-6">
+    <main id="view-guru" class="hidden max-w-5xl mx-auto px-4 pt-6 space-y-6">
 
         <!-- KOP SURAT COVER DEPAN -->
         <section class="bg-white rounded-3xl shadow-md border border-blue-200/80 p-4 sm:p-6">
@@ -187,7 +221,7 @@
                 <div class="text-center flex-1 px-1">
                     <p class="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-blue-800">Yayasan Pondok Pesantren Hidayatullah Martapura</p>
                     <h2 id="cover-school-title" class="text-lg sm:text-2xl font-extrabold text-blue-950 tracking-tight leading-snug mt-0.5">SD ISLAM HIDAYATULLAH</h2>
-                    <p id="cover-school-addr" class="text-[11px] sm:text-xs text-slate-600 font-medium mt-0.5">Komplek Ponpes Hidayatullah Taman Hudaya Jl. Irigasi Teluk Sanggar Bincau Martapura Kabupaten Banjar 70651</p>
+                    <p id="cover-school-addr" class="text-[11px] sm:text-xs text-slate-600 font-medium mt-0.5">Jl. P. Hidayatullah Keraton Martapura • Kab. Banjar, Kalimantan Selatan</p>
                     <div id="cover-identity-badge" class="inline-block mt-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[11px] font-extrabold text-blue-900">
                         DAFTAR HADIR GURU & TENAGA PENDIDIK
                     </div>
@@ -249,12 +283,12 @@
                     <!-- Nama & Jabatan (Ketik Langsung Bukan Dropdown) -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                         <div>
-                            <label for="quick-name" class="block text-xs font-extrabold text-blue-950 mb-1">Nama Guru / Tenaga Pendidik *</label>
-                            <input type="text" id="quick-name" required autocomplete="off" placeholder="Ketik nama lengkap Anda..." oninput="syncCoverIdentityToAdmin()" class="w-full px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                            <label for="quick-name" class="block text-xs font-extrabold text-blue-950 mb-1">Nama Guru / Tenaga Pendidik (sesuai login)</label>
+                            <input type="text" id="quick-name" required readonly autocomplete="off" placeholder="Nama Anda" oninput="syncCoverIdentityToAdmin()" class="w-full px-3.5 py-2.5 rounded-xl border border-blue-200 bg-blue-50/80 text-sm font-bold text-slate-900 cursor-not-allowed focus:outline-none">
                         </div>
                         <div>
-                            <label for="quick-role" class="block text-xs font-extrabold text-blue-950 mb-1">Jabatan / Tugas Mengajar *</label>
-                            <input type="text" id="quick-role" required placeholder="Contoh: Guru Kelas IV / Guru PAI / Tendik" oninput="syncCoverIdentityToAdmin()" class="w-full px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                            <label for="quick-role" class="block text-xs font-extrabold text-blue-950 mb-1">Jabatan (ketik manual) *</label>
+                            <input type="text" id="quick-role" required placeholder="Ketik jabatan Anda, mis: Guru Kelas IV" oninput="syncCoverIdentityToAdmin()" class="w-full px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600">
                         </div>
                     </div>
 
@@ -311,7 +345,7 @@
                     </div>
 
                     <div class="pt-2 flex flex-wrap items-center justify-between gap-3">
-                        <p class="text-[11px] text-slate-500">⏰ Absen hanya dapat diisi mulai <b>hari H pukul 07:00 WITA</b>. Tips: Ketik 4 angka seperti <b>0715</b> → <b>07:15</b>.</p>
+                        <p class="text-[11px] text-slate-500">💡 Tips: Ketik 4 angka seperti <b>0715</b> atau <b>1430</b>, otomatis menjadi <b>07:15</b> / <b>14:30</b>.</p>
                         <button type="submit" class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-800 to-blue-600 hover:from-blue-900 hover:to-blue-700 text-white font-extrabold text-sm shadow-md transition">
                             ✅ Simpan Kehadiran
                         </button>
@@ -452,7 +486,7 @@
                     <div class="text-center flex-1 px-2">
                         <p class="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-blue-800">Yayasan Pondok Pesantren Hidayatullah Martapura</p>
                         <h3 class="admin-school-title text-lg sm:text-2xl font-extrabold text-blue-950 tracking-tight mt-0.5">SD ISLAM HIDAYATULLAH</h3>
-                        <p class="admin-school-addr text-[11px] sm:text-xs text-slate-600 font-medium mt-0.5">Komplek Ponpes Hidayatullah Taman Hudaya Jl. Irigasi Teluk Sanggar Bincau Martapura Kabupaten Banjar 70651</p>
+                        <p class="admin-school-addr text-[11px] sm:text-xs text-slate-600 font-medium mt-0.5">Jl. P. Hidayatullah Keraton Martapura • Kab. Banjar, Kalimantan Selatan</p>
                         <div class="inline-block mt-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200">
                             <p id="admin-monthly-subtitle" class="text-[11px] sm:text-xs font-extrabold text-blue-950 tracking-wide">REKAPITULASI DAFTAR HADIR BULANAN</p>
                         </div>
@@ -585,7 +619,7 @@
         const defaultState = {
             settings: {
                 schoolName: "SD ISLAM HIDAYATULLAH",
-                schoolAddr: "Komplek Ponpes Hidayatullah Taman Hudaya Jl. Irigasi Teluk Sanggar Bincau Martapura Kabupaten Banjar 70651",
+                schoolAddr: "Jl. P. Hidayatullah Keraton Martapura • Kab. Banjar, Kalimantan Selatan",
                 principalName: "Kepala SD Islam Hidayatullah",
                 adminPin: "Tahura*1028",
                 customLogoLeft: "",
@@ -601,6 +635,30 @@
         };
 
         let state = loadState();
+        const TEACHER_PASSWORD = "SDI1028";
+        const ADMIN_PASSWORD = "Tahura*1028";
+        const SESSION_KEY = "absensi_sdi_session_teacher";
+        let sessionTeacher = "";
+        let loginMode = "guru";
+        try { sessionTeacher = sessionStorage.getItem(SESSION_KEY) || ""; } catch (e) {}
+
+        // Hapus permanen nama tertentu (sekali jalan)
+        (function purgeNames() {
+            const targets = ["yuliana hidayati"];
+            state.settings.purged = Array.isArray(state.settings.purged) ? state.settings.purged : [];
+            let changed = false;
+            targets.forEach(t => {
+                if (state.settings.purged.includes(t)) return;
+                const ids = state.teachers.filter(x => x.name.toLowerCase().includes(t)).map(x => x.id);
+                ids.forEach(id => { delete state.records[id]; });
+                state.teachers = state.teachers.filter(x => !ids.includes(x.id));
+                state.quickLogs = state.quickLogs.filter(l => !ids.includes(l.teacherId));
+                if ((state.coverIdentity.name || "").toLowerCase().includes(t)) state.coverIdentity = { name: "", role: "" };
+                state.settings.purged.push(t);
+                changed = true;
+            });
+            if (changed) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {} }
+        })();
         let isAdminUnlocked = false;
         let pendingDeleteTeacherId = null;
         let pendingDeleteLog = null;
@@ -667,57 +725,6 @@
             const m = String(monthIndex + 1).padStart(2, "0");
             const d = String(day).padStart(2, "0");
             return `${year}-${m}-${d}`;
-        }
-
-        function getIndoDateTimeInfo() {
-            const now = new Date();
-            try {
-                const parts = new Intl.DateTimeFormat("en-CA", {
-                    timeZone: "Asia/Makassar",
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false
-                }).formatToParts(now);
-                const get = (t) => parseInt(parts.find(p => p.type === t)?.value || "0", 10);
-                return {
-                    year: get("year"),
-                    month: get("month") - 1,
-                    day: get("day"),
-                    hour: get("hour") === 24 ? 0 : get("hour"),
-                    minute: get("minute")
-                };
-            } catch (e) {
-                return {
-                    year: now.getFullYear(),
-                    month: now.getMonth(),
-                    day: now.getDate(),
-                    hour: now.getHours(),
-                    minute: now.getMinutes()
-                };
-            }
-        }
-
-        function isBeforeAttendanceOpen(targetYear, targetMonth, targetDay) {
-            const cur = getIndoDateTimeInfo();
-            const targetDateNum = targetYear * 10000 + (targetMonth + 1) * 100 + targetDay;
-            const currentDateNum = cur.year * 10000 + (cur.month + 1) * 100 + cur.day;
-
-            if (targetDateNum > currentDateNum) {
-                return {
-                    blocked: true,
-                    reason: `Absensi untuk tanggal ${targetDay} ${MONTHS_ID[targetMonth]} ${targetYear} belum dibuka. Hanya bisa diisi mulai hari H pukul 07:00 WITA.`
-                };
-            }
-            if (targetDateNum === currentDateNum && cur.hour < 7) {
-                return {
-                    blocked: true,
-                    reason: `Absensi hari ini belum dibuka. Silakan isi absen mulai pukul 07:00 WITA (sekarang pukul ${String(cur.hour).padStart(2, "0")}:${String(cur.minute).padStart(2, "0")} WITA).`
-                };
-            }
-            return { blocked: false, reason: "" };
         }
 
         function getCurrentIndoTimeStr() {
@@ -995,13 +1002,6 @@
             const day = parseInt(document.getElementById("quick-day").value, 10);
             const month = parseInt(document.getElementById("quick-month").value, 10);
             const year = parseInt(document.getElementById("quick-year").value, 10);
-
-            const checkOpen = isBeforeAttendanceOpen(year, month, day);
-            if (checkOpen.blocked) {
-                alert("⏰ " + checkOpen.reason);
-                showToast("⏰ " + checkOpen.reason);
-                return;
-            }
             const timeIn = formatIndoTimeInput(document.getElementById("quick-in"));
             const timeOut = formatIndoTimeInput(document.getElementById("quick-out"));
             const status = document.getElementById("quick-status").value;
@@ -1041,12 +1041,14 @@
         function renderQuickRecentList() {
             const container = document.getElementById("quick-recent-list");
             if (!container) return;
-            if (!state.quickLogs.length) {
+            const me = currentTeacherObj();
+            const myLogs = me ? state.quickLogs.filter(l => l.teacherId === me.id) : [];
+            if (!myLogs.length) {
                 container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">Belum ada riwayat absen yang dicatat.</p>`;
                 return;
             }
 
-            container.innerHTML = state.quickLogs.map(log => {
+            container.innerHTML = myLogs.map(log => {
                 const teacher = state.teachers.find(t => t.id === log.teacherId);
                 if (!teacher) return "";
                 const rec = (state.records[log.teacherId] && state.records[log.teacherId][log.dateKey]) || {};
@@ -1132,10 +1134,12 @@
             const prevAdmin = adminSel ? adminSel.value : "ALL";
 
             if (sheetSel) {
-                if (!state.teachers.length) {
-                    sheetSel.innerHTML = `<option value="">-- Belum ada data guru --</option>`;
+                const mine = currentTeacherObj();
+                const sheetList = mine ? [mine] : [];
+                if (!sheetList.length) {
+                    sheetSel.innerHTML = `<option value="">-- Belum ada data absen Anda --</option>`;
                 } else {
-                    sheetSel.innerHTML = state.teachers.map(t =>
+                    sheetSel.innerHTML = sheetList.map(t =>
                         `<option value="${t.id}" ${t.id === prevSheet ? "selected" : ""}>${escapeHtml(t.name)} (${escapeHtml(t.role)})</option>`
                     ).join("");
                 }
@@ -1221,14 +1225,6 @@
         }
 
         window.updateSheetCell = function (teacherId, dateKey, field, el) {
-            const [yStr, mStr, dStr] = dateKey.split("-");
-            const checkOpen = isBeforeAttendanceOpen(parseInt(yStr, 10), parseInt(mStr, 10) - 1, parseInt(dStr, 10));
-            if (checkOpen.blocked) {
-                alert("⏰ " + checkOpen.reason);
-                showToast("⏰ " + checkOpen.reason);
-                renderTeacherSheet();
-                return;
-            }
             let val = el.value;
             if (field === "timeIn" || field === "timeOut") {
                 val = formatIndoTimeInput(el);
@@ -1267,6 +1263,10 @@
             const btnGuru = document.getElementById("btn-nav-guru");
             const btnAdmin = document.getElementById("btn-nav-admin");
 
+            if (view === "guru" && !sessionTeacher) {
+                showLoginOverlay("guru");
+                return;
+            }
             if (view === "guru") {
                 viewGuru.classList.remove("hidden");
                 viewAdmin.classList.add("hidden");
@@ -1319,7 +1319,7 @@
 
         window.verifyAdminPin = function () {
             const val = (document.getElementById("admin-pin-input")?.value || "").trim();
-            if (val === "Tahura*1028") {
+            if (val === ADMIN_PASSWORD) {
                 isAdminUnlocked = true;
                 closePinModal();
                 switchMainView("admin");
@@ -1453,7 +1453,7 @@
             const totalDays = getDaysInMonth(year, month);
             const lastDay = totalDays;
             const sName = state.settings.schoolName || "SD ISLAM HIDAYATULLAH";
-            const sAddr = state.settings.schoolAddr || "Komplek Ponpes Hidayatullah Taman Hudaya Jl. Irigasi Teluk Sanggar Bincau Martapura Kabupaten Banjar 70651";
+            const sAddr = state.settings.schoolAddr || "Jl. P. Hidayatullah Keraton Martapura • Kab. Banjar, Kalimantan Selatan";
             const principalName = state.settings.principalName || "Kepala SD Islam Hidayatullah";
             const leftLogoSrc = state.settings.customLogoLeft || "image_24d946.png";
             const rightLogoSrc = state.settings.customLogoRight || "image_24d981.png";
@@ -1687,6 +1687,122 @@
             }
         }
 
+        const ALLOWED_TEACHERS = [
+            "Siti Mariam, S.Pd., Gr.",
+            "Siti Ubaidah, S.Pd.I., Gr.",
+            "Hamidah, S.Pd., Gr.",
+            "Gesit Muji Rahayu, S.S., Gr.",
+            "Mariah Olfah, S.Pd., Gr.",
+            "Halimatus Sa'diah, S.Pd., Gr.",
+            "Ratna Sari, S.Pd., Gr.",
+            "Naily Magfiroh, S.Pd., Gr."
+        ];
+
+        function nameKey(v) {
+            return String(v || "").toLowerCase().replace(/[\u2018\u2019`\u00b4]/g, "'").replace(/[^a-z0-9]/g, "");
+        }
+
+        // Mengembalikan nama resmi (lengkap dengan gelar) bila terdaftar, selain itu "".
+        function findAllowedTeacher(input) {
+            const full = nameKey(input);
+            const base = nameKey(String(input || "").split(",")[0]);
+            if (!base) return "";
+            const hit = ALLOWED_TEACHERS.find(n => {
+                const nFull = nameKey(n);
+                const nBase = nameKey(n.split(",")[0]);
+                return full === nFull || base === nBase || full.startsWith(nBase);
+            });
+            return hit || "";
+        }
+
+        function normPass(v) { return String(v || "").replace(/\s+/g, "").toLowerCase(); }
+
+        function currentTeacherObj() {
+            if (!sessionTeacher) return null;
+            return state.teachers.find(t => t.name.toLowerCase() === sessionTeacher.toLowerCase()) || null;
+        }
+
+        window.setLoginMode = function (mode) {
+            loginMode = mode;
+            const isGuru = mode === "guru";
+            document.getElementById("login-name-wrap").classList.toggle("hidden", !isGuru);
+            document.getElementById("login-tab-guru").className = isGuru
+                ? "py-2 rounded-xl text-xs font-extrabold bg-blue-800 text-white shadow"
+                : "py-2 rounded-xl text-xs font-bold text-blue-900";
+            document.getElementById("login-tab-admin").className = !isGuru
+                ? "py-2 rounded-xl text-xs font-extrabold bg-blue-800 text-white shadow"
+                : "py-2 rounded-xl text-xs font-bold text-blue-900";
+            document.getElementById("login-pass-label").textContent = isGuru ? "Password" : "Password Admin";
+            document.getElementById("login-error").classList.add("hidden");
+            document.getElementById("login-pass").value = "";
+        };
+
+        window.toggleLoginPass = function () {
+            const inp = document.getElementById("login-pass");
+            const show = inp.type === "password";
+            inp.type = show ? "text" : "password";
+            document.getElementById("login-pass-toggle").textContent = show ? "Sembunyi" : "Lihat";
+        };
+
+        function showLoginError(msg) {
+            const el = document.getElementById("login-error");
+            el.textContent = msg;
+            el.classList.remove("hidden");
+        }
+
+        function showLoginOverlay(mode) {
+            setLoginMode(mode || "guru");
+            document.getElementById("login-name").value = "";
+            document.getElementById("login-overlay").classList.remove("hidden");
+            document.getElementById("view-guru").classList.add("hidden");
+            document.getElementById("view-admin").classList.add("hidden");
+        }
+
+        window.submitLogin = function (e) {
+            e.preventDefault();
+            const pass = document.getElementById("login-pass").value;
+            if (loginMode === "admin") {
+                if (pass.trim() !== ADMIN_PASSWORD) { showLoginError("Password admin salah."); return; }
+                isAdminUnlocked = true;
+                document.getElementById("login-overlay").classList.add("hidden");
+                switchMainView("admin");
+                showToast("🔓 Masuk sebagai Admin.");
+                return;
+            }
+            let name = document.getElementById("login-name").value.replace(/\s+/g, " ").trim();
+            if (!name) { showLoginError("Nama wajib diketik."); return; }
+            const officialName = findAllowedTeacher(name);
+            if (!officialName) { showLoginError("Nama tidak terdaftar. Hanya guru yang terdaftar yang dapat absen."); return; }
+            if (normPass(pass) !== normPass(TEACHER_PASSWORD)) { showLoginError("Password salah."); return; }
+
+            name = officialName;
+            sessionTeacher = name;
+            try { sessionStorage.setItem(SESSION_KEY, name); } catch (err) {}
+            state.coverIdentity = { name, role: "" };
+            saveState();
+            document.getElementById("quick-name").value = name;
+            document.getElementById("quick-role").value = "";
+            document.getElementById("login-overlay").classList.add("hidden");
+            updateCoverIdentityBadge();
+            refreshTeacherDropdowns();
+            renderQuickRecentList();
+            renderTeacherSheet();
+            switchMainView("guru");
+            showToast(`✅ Selamat datang, ${name}. Silakan isi jabatan Anda.`);
+        };
+
+        window.logoutAll = function () {
+            sessionTeacher = "";
+            isAdminUnlocked = false;
+            try { sessionStorage.removeItem(SESSION_KEY); } catch (err) {}
+            state.coverIdentity = { name: "", role: "" };
+            saveState();
+            document.getElementById("quick-name").value = "";
+            document.getElementById("quick-role").value = "";
+            updateCoverIdentityBadge();
+            showLoginOverlay("guru");
+        };
+
         function initApp() {
             const now = new Date();
             const curMonth = now.getMonth();
@@ -1703,11 +1819,9 @@
 
             populateQuickDaySelect(curYear, curMonth, curDay);
 
-            if (state.coverIdentity.name) {
-                document.getElementById("quick-name").value = state.coverIdentity.name;
-            }
-            if (state.coverIdentity.role) {
-                document.getElementById("quick-role").value = state.coverIdentity.role;
+            if (sessionTeacher) {
+                document.getElementById("quick-name").value = sessionTeacher;
+                if (state.coverIdentity.role) document.getElementById("quick-role").value = state.coverIdentity.role;
             }
             updateCoverIdentityBadge();
 
@@ -1719,6 +1833,17 @@
             renderTeacherSheet();
             updateAdminSignatureBlock();
             startLiveIndoClock();
+
+            if (sessionTeacher && !findAllowedTeacher(sessionTeacher)) {
+                sessionTeacher = "";
+                try { sessionStorage.removeItem(SESSION_KEY); } catch (err) {}
+            }
+            if (sessionTeacher) {
+                document.getElementById("login-overlay").classList.add("hidden");
+                switchMainView("guru");
+            } else {
+                showLoginOverlay("guru");
+            }
         }
 
         window.onload = initApp;
