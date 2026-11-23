@@ -345,7 +345,7 @@
                     </div>
 
                     <div class="pt-2 flex flex-wrap items-center justify-between gap-3">
-                        <p class="text-[11px] text-slate-500">⏰ Absen hanya bisa diisi <b>pada hari ini</b>, mulai pukul <b>07:00 WITA</b>. Setelah tersimpan, jam datang/pulang hanya bisa diubah <b>admin</b>.<br>💡 Tips: Ketik 4 angka seperti <b>0715</b> atau <b>1430</b>, otomatis menjadi <b>07:15</b> / <b>14:30</b>.</p>
+                        <p class="text-[11px] text-slate-500">⏰ Absen hanya bisa diisi <b>pada hari ini</b>, mulai pukul <b>07:00 WITA</b>. Jam datang dicatat otomatis saat simpan pertama dan jam pulang saat simpan berikutnya. Jam hanya bisa diubah oleh <b>admin</b>.</p>
                         <button type="submit" class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-800 to-blue-600 hover:from-blue-900 hover:to-blue-700 text-white font-extrabold text-sm shadow-md transition">
                             ✅ Simpan Kehadiran
                         </button>
@@ -804,6 +804,16 @@
                 if (monthEl) monthEl.value = n.month;
                 if (yearEl) yearEl.value = n.year;
             }
+            ["quick-in", "quick-out"].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.readOnly = !isAdminUnlocked;
+                el.placeholder = isAdminUnlocked ? (id === "quick-in" ? "07:00" : "14:00") : "Otomatis";
+                if (!isAdminUnlocked) el.value = "";
+                el.classList.toggle("bg-slate-100", !isAdminUnlocked);
+                el.classList.toggle("cursor-not-allowed", !isAdminUnlocked);
+            });
+            document.querySelectorAll('button[onclick^="fillQuickTime"]').forEach(b => b.classList.toggle("hidden", !isAdminUnlocked));
             if (monthEl) monthEl.disabled = !isAdminUnlocked;
             if (yearEl) yearEl.disabled = !isAdminUnlocked;
             const year = parseInt(yearEl?.value, 10) || n.year;
@@ -1091,11 +1101,29 @@
             const teacher = findOrCreateTeacher(name, role);
             const dateKey = makeDateKey(year, month, day);
             let finalIn = timeIn, finalOut = timeOut;
+            let stampInfo = "";
             if (!isAdminUnlocked) {
-                // Jam yang sudah tercatat tidak bisa ditimpa guru; hanya admin.
+                // Guru tidak bisa mengisi jam sendiri: jam dicatat otomatis dari jam sistem (WITA).
+                // Simpan pertama = jam datang, simpan berikutnya = jam pulang. Hanya admin yang bisa mengubahnya.
                 const prev = (state.records[teacher.id] && state.records[teacher.id][dateKey]) || {};
-                if (prev.timeIn) finalIn = prev.timeIn;
-                if (prev.timeOut) finalOut = prev.timeOut;
+                const nowStr = getCurrentIndoTimeStr();
+                finalIn = prev.timeIn || "";
+                finalOut = prev.timeOut || "";
+                if (status === "Hadir" || status === "Dinas Luar") {
+                    if (!finalIn) {
+                        finalIn = nowStr;
+                        stampInfo = ` • Jam datang ${nowStr}`;
+                    } else if (!finalOut) {
+                        if (finalIn === nowStr) {
+                            showToast(`ℹ️ Jam datang ${finalIn} sudah tercatat. Absen pulang bisa dicatat satu menit kemudian.`);
+                            return;
+                        }
+                        finalOut = nowStr;
+                        stampInfo = ` • Jam pulang ${nowStr}`;
+                    } else {
+                        stampInfo = " • Jam datang & pulang sudah tercatat (hanya admin yang bisa mengubah)";
+                    }
+                }
             }
             setRecord(teacher.id, dateKey, { timeIn: finalIn, timeOut: finalOut, status, note });
 
@@ -1120,7 +1148,7 @@
             renderQuickRecentList();
             renderTeacherSheet();
             updateAdminSignatureBlock();
-            showToast(`✅ Kehadiran ${teacher.name} (${day} ${MONTHS_ID[month]} ${year}) tersimpan!`);
+            showToast(`✅ Kehadiran ${teacher.name} (${day} ${MONTHS_ID[month]} ${year}) tersimpan!${stampInfo}`);
         };
 
         function renderQuickRecentList() {
@@ -1159,7 +1187,7 @@
                             <button type="button" ${(isAdminUnlocked || log.dateKey === makeDateKey(getIndoNow().year, getIndoNow().month, getIndoNow().day)) ? "" : "disabled title=\"Tanggal sudah lewat\""} onclick="loadLogToQuickForm('${log.teacherId}', '${log.dateKey}', ${log.day}, ${log.month}, ${log.year})" class="px-2.5 py-1.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-[11px] font-bold disabled:opacity-40 disabled:cursor-not-allowed">
                                 ✏️ Edit
                             </button>
-                            <button type="button" onclick="confirmDeleteQuickLog('${log.id}', '${log.teacherId}', '${log.dateKey}')" class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[11px] font-bold transition">
+                            <button type="button" ${isAdminUnlocked ? "" : "hidden"} onclick="confirmDeleteQuickLog('${log.id}', '${log.teacherId}', '${log.dateKey}')" class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[11px] font-bold transition">
                                 🗑️ Hapus Riwayat
                             </button>
                         </div>
@@ -1169,6 +1197,7 @@
         }
 
         window.confirmDeleteQuickLog = function (logId, teacherId, dateKey) {
+            if (!isAdminUnlocked) { showToast("🔒 Hanya admin yang bisa menghapus riwayat absen."); return; }
             const teacher = state.teachers.find(t => t.id === teacherId);
             const log = state.quickLogs.find(l => l.id === logId);
             pendingDeleteTeacherId = null;
@@ -1790,6 +1819,7 @@
         };
 
         window.confirmDeleteTeacher = function (teacherId) {
+            if (!isAdminUnlocked) { showToast("🔒 Hanya admin yang bisa menghapus data."); return; }
             const teacher = state.teachers.find(t => t.id === teacherId);
             if (!teacher) return;
             pendingDeleteLog = null;
@@ -1806,6 +1836,7 @@
         };
 
         function executeConfirmedDelete() {
+            if (!isAdminUnlocked) { closeDeleteModal(); showToast("🔒 Hanya admin yang bisa menghapus data."); return; }
             if (pendingDeleteLog) {
                 const { logId, teacherId, dateKey } = pendingDeleteLog;
                 if (state.records[teacherId] && state.records[teacherId][dateKey]) {
